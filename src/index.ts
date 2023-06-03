@@ -1,13 +1,11 @@
 import '@logseq/libs'; //https://plugins-doc.logseq.com/
-import { logseq as PL } from "../package.json";
-const pluginId = PL.id; //set plugin id from package.json
-import { SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user';
+import { SettingSchemaDesc, AppUserConfigs, BlockEntity } from '@logseq/libs/dist/LSPlugin.user';
 import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 import ja from "./translations/ja.json";
 import Swal from 'sweetalert2';//https://sweetalert2.github.io/
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
 
-
+//Credit
 //https://github.com/0x7b1/logseq-plugin-automatic-url-title
 
 const DEFAULT_REGEX = {
@@ -63,7 +61,7 @@ async function getTitle(url) {
     return '';
 }
 
-async function convertUrlToMarkdownLink(title: string, url, text, urlStartIndex, offset, applyFormat) {
+function convertUrlToMarkdownLink(title: string, url, text, urlStartIndex, offset, applyFormat) {
     if (title) {
         title = includeTitle(title);
     } else {
@@ -105,7 +103,7 @@ function isWrappedIn(text, url) {
 
 
 async function getFormatSettings() {
-    const { preferredFormat } = await logseq.App.getUserConfigs();
+    const { preferredFormat } = await logseq.App.getUserConfigs() as AppUserConfigs;
     if (!preferredFormat) {
         return null;
     }
@@ -118,7 +116,7 @@ const parseBlockForLink = async (uuid, sweetAlert2background, sweetAlert2color) 
         return;
     }
 
-    const rawBlock = await logseq.Editor.getBlock(uuid);
+    const rawBlock = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
     if (!rawBlock) {
         return;
     }
@@ -211,17 +209,17 @@ function includeTitle(title: string): string {
     });
 }
 
-const MarkdownLink = async (sweetAlert2background, sweetAlert2color) => {
+const MarkdownLink = (sweetAlert2background, sweetAlert2color) => {
     let blockSet: string = "";
     let processing: boolean = false; // ロック用フラグ
 
-    await logseq.DB.onChanged(async (e) => {
+    logseq.DB.onChanged(async ({txMeta}) => {
         if (processing) { // 処理中の場合はリターンして重複を避ける
             return;
         }
         const currentBlock = await logseq.Editor.getCurrentBlock();
         if (currentBlock) {
-            if (blockSet !== currentBlock.uuid || e.txMeta?.outlinerOp === 'insertBlocks') {// 他のブロックを触ったら解除する
+            if (blockSet !== currentBlock.uuid || txMeta?.outlinerOp === 'insertBlocks') {// 他のブロックを触ったら解除する
                 processing = true; // ロックをかける
                 const cancel = await parseBlockForLink(currentBlock.uuid, sweetAlert2background, sweetAlert2color) as boolean; // キャンセルだったらブロックをロックする
                 if (cancel === true) {
@@ -248,7 +246,6 @@ const MarkdownLink = async (sweetAlert2background, sweetAlert2color) => {
 
 /* main */
 const main = () => {
-    console.info(`#${pluginId}: MAIN`); //console
     (async () => {
         try {
             await l10nSetup({ builtinTranslations: { ja } });
@@ -265,16 +262,16 @@ const main = () => {
     })();
 
 
-    //get theme color (For SweetAlert2)
+    //get theme color
     //checkboxなどはCSSで上書きする必要あり
-    let sweetAlert2background;  //color: sweetAlert2color
-    let sweetAlert2color; //background: sweetAlert2background
+    let background;
+    let color;
     const rootThemeColor = () => {
         const root = parent.document.querySelector(":root");
         if (root) {
             const rootStyles = getComputedStyle(root);
-            sweetAlert2background = rootStyles.getPropertyValue("--ls-block-properties-background-color") || "#ffffff";
-            sweetAlert2color = rootStyles.getPropertyValue("--ls-primary-text-color") || "#000000";
+            background = rootStyles.getPropertyValue("--ls-block-properties-background-color") || "#ffffff";
+            color = rootStyles.getPropertyValue("--ls-primary-text-color") || "#000000";
         }
     };
     rootThemeColor();
@@ -283,11 +280,11 @@ const main = () => {
 
 
     //markdown link
-    MarkdownLink(sweetAlert2background, sweetAlert2color);
+    MarkdownLink(background, color);
 
 
     /* Slash Command `create pdf link (online)`  */
-    logseq.Editor.registerSlashCommand('create pdf link (online)', async ({uuid}) => {
+    logseq.Editor.registerSlashCommand('create pdf link (online)', async ({ uuid }) => {
         //dialog
         await logseq.showMainUI();
         await Swal.fire({
@@ -297,8 +294,8 @@ const main = () => {
                 '<input id="url" class="swal2-input" placeholder="URL (Online PDF)"/>',
             focusConfirm: false,
             showCancelButton: true,
-            color: sweetAlert2color,
-            background: sweetAlert2background,
+            color: color,
+            background: background,
             inputValidator: (value) => {
                 return new Promise((resolve) => {
                     if (value) {
@@ -311,11 +308,11 @@ const main = () => {
                 const url = (document.getElementById('url') as HTMLInputElement).value;
                 return { title: title, url: url };
             },
-        }).then(async (result) => {
+        }).then((result) => {
             if (result.isConfirmed) {
                 let title = result.value?.title || "";
-                title = IncludeTitle(title);
-                const line = await logseq.Editor.insertBlock(uuid, `![${title}](${result.value?.url})`, { focus: true, sibling: true });
+                title = includeTitle(title);
+                logseq.Editor.insertBlock(uuid, `![${title}](${result.value?.url})`, { focus: true, sibling: true });
                 logseq.UI.showMsg("Done! generate the link online pdf", "info");
             } else {//Cancel
                 logseq.UI.showMsg("Cancel", "warning");
@@ -325,7 +322,13 @@ const main = () => {
         //dialog end
     });
 
-    console.info(`#${pluginId}: loaded`);//console
+    logseq.provideStyle(`
+a.external-link::before {
+    content: "🔗";
+    color: #3dbae3;
+}
+`);
+
 };/* end_main */
 
 
@@ -335,19 +338,6 @@ const main = () => {
 const settingsTemplate: SettingSchemaDesc[] = [
 
 ];
-
-function IncludeTitle(title: string) {
-    title = title.replace(/[\n()\[\]]/g, '');
-    title = title.replace("\n", '');
-    title = title.replace("(", '');
-    title = title.replace(")", '');
-    title = title.replace("[", '');
-    title = title.replace("]", '');
-    title = title.replace("{{", '{');
-    title = title.replace("}}", '}');
-    title = title.replace("#+", ' ');
-    return title;
-}
 
 
 logseq.ready(main).catch(console.error);
