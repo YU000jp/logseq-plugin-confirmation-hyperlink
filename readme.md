@@ -15,9 +15,7 @@
 
 ## Feature
 
-### Automatic link title feature
-
-> Paste the URL on the editing block
+> Paste a URL on the editing block
 
 - Existing auto plugins often perform unnecessary conversions and may result in garbled characters. To address this issue, our solution is to confirm with the user through a dialog before making any changes. To use this feature, simply paste the URL and a dialog will appear, allowing you to edit the title if necessary.
 
