@@ -1,4 +1,4 @@
-# Logseq Plugin: Confirmation Link Title (Paste URL)
+# Logseq Plugin: Confirmation Hyperlink (Paste URL)
 
 - Create a Markdown Hyperlink by pasting a URL and retrieving the page title through a confirmation dialog.
 
@@ -6,9 +6,9 @@
 
 > This plugin still has room for improvement. Please let me know if you encounter any issues or have any ideas for enhancement.
 
-[![latest release version](https://img.shields.io/github/v/release/YU000jp/logseq-plugin-confirmation-link-title)](https://github.com/YU000jp/logseq-plugin-confirmation-link-title/releases)
-[![License](https://img.shields.io/github/license/YU000jp/logseq-plugin-confirmation-link-title?color=blue)](https://github.com/YU000jp/logseq-plugin-confirmation-link-title/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/YU000jp/logseq-plugin-confirmation-link-title/total.svg)](https://github.com/YU000jp/logseq-plugin-confirmation-link-title/releases)
+[![latest release version](https://img.shields.io/github/v/release/YU000jp/logseq-plugin-confirmation-hyperlink)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
+[![License](https://img.shields.io/github/license/YU000jp/logseq-plugin-confirmation-hyperlink?color=blue)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/YU000jp/logseq-plugin-confirmation-hyperlink/total.svg)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
 <!-- Published 2023 -->
 
 ---
@@ -31,7 +31,7 @@
 - Select marketplace
 - Type `URL` in the search field, select it from the search results and install
 
-![image](https://github.com/YU000jp/logseq-plugin-confirmation-link-title/assets/111847207/f23810ba-8823-4043-9c74-bff5edf0d917)
+![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/f23810ba-8823-4043-9c74-bff5edf0d917)
 
 ### Usage
 
@@ -41,7 +41,7 @@
 
 ## Showcase / Questions / Ideas / Help
 
-> Go to the [discussion](./discussions) tab to ask and find this kind of things.
+> Go to the [discussion](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/discussions) tab to ask and find this kind of things.
 
 ## Author
 

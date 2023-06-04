@@ -1,5 +1,5 @@
 
-var PLUGIN_NAME = 'logseq-plugin-confirmation-link-title'
+var PLUGIN_NAME = 'logseq-plugin-confirmation-hyperlink'
 
 module.exports = {
     branches: ['main'],

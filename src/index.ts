@@ -1,7 +1,7 @@
 import '@logseq/libs'; //https://plugins-doc.logseq.com/
-import { SettingSchemaDesc, AppUserConfigs, BlockEntity } from '@logseq/libs/dist/LSPlugin.user';
-import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
-import ja from "./translations/ja.json";
+import { AppUserConfigs, BlockEntity } from '@logseq/libs/dist/LSPlugin.user';
+//import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
+//import ja from "./translations/ja.json";
 import Swal from 'sweetalert2';//https://sweetalert2.github.io/
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
 
@@ -213,7 +213,7 @@ const MarkdownLink = (sweetAlert2background, sweetAlert2color) => {
     let blockSet: string = "";
     let processing: boolean = false; // ロック用フラグ
 
-    logseq.DB.onChanged(async ({txMeta}) => {
+    logseq.DB.onChanged(async ({ txMeta }) => {
         if (processing) { // 処理中の場合はリターンして重複を避ける
             return;
         }
@@ -246,20 +246,20 @@ const MarkdownLink = (sweetAlert2background, sweetAlert2color) => {
 
 /* main */
 const main = () => {
-    (async () => {
-        try {
-            await l10nSetup({ builtinTranslations: { ja } });
-        } finally {
-            /* user settings */
-            logseq.useSettingsSchema(settingsTemplate);
-            if (!logseq.settings) {
-                setTimeout(() => {
-                    logseq.showSettingsUI();
-                }
-                    , 300);
-            }
-        }
-    })();
+    //     (async () => {
+    //         try {
+    //             await l10nSetup({ builtinTranslations: { ja } });
+    //         } finally {
+    //             /* user settings */
+    //             logseq.useSettingsSchema(settingsTemplate);
+    //             if (!logseq.settings) {
+    //                 setTimeout(() => {
+    //                     logseq.showSettingsUI();
+    //                 }
+    //                     , 300);
+    //             }
+    //         }
+    //     })();
 
 
     //get theme color
@@ -335,9 +335,9 @@ a.external-link::before {
 
 /* user setting */
 // https://logseq.github.io/plugins/types/SettingSchemaDesc.html
-const settingsTemplate: SettingSchemaDesc[] = [
+// const settingsTemplate: SettingSchemaDesc[] = [
 
-];
+// ];
 
 
 logseq.ready(main).catch(console.error);
