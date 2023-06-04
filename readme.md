@@ -21,6 +21,8 @@
 
 ## Demo
 
+![image](https://github.com/YU000jp/logseq-plugin-some-menu-extender/assets/111847207/1d67d7fb-bb2f-42d7-bc0c-f19e27bb5419)
+
 ---
 
 ## Getting Started
