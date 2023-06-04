@@ -58,6 +58,10 @@
 - [@logseq/libs](https://logseq.github.io/plugins/)
 - [logseq-l10n](https://github.com/sethyuan/logseq-l10n)
 
+### Logseq-plugin
+
+- [0x7b1/ automatic url title](https://github.com/0x7b1/logseq-plugin-automatic-url-title)
+
 ### Icon
 
 - [icooon-mono.com](https://icooon-mono.com/11386-%e3%82%a4%e3%83%b3%e3%82%bf%e3%83%bc%e3%83%8d%e3%83%83%e3%83%88%e3%81%ae%e3%82%a2%e3%82%a4%e3%82%b3%e3%83%b33/)
