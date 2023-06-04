@@ -1,12 +1,12 @@
 {
     "name": "logseq-plugin-confirmation-link-title",
-    "description": "",
+    "description": "Create a Markdown Hyperlink by pasting a URL and retrieving the page title through a confirmation dialog.",
     "repository": "https://github.com/YU000jp/logseq-plugin-confirmation-link-title.git",
     "author": "YU000jp",
     "license": "MIT",
     "logseq": {
         "id": "confirmation-link-title",
-        "title": "Confirmation Link Title (Pastes URL)",
+        "title": "Confirmation HyperLink (Paste URL)",
         "icon": "./icon.svg",
         "main": "./dist/index.html"
     },
