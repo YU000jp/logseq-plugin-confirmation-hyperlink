@@ -285,11 +285,11 @@ const main = () => {
 
 
     /* Slash Command `create pdf link (online)`  */
-    logseq.Editor.registerSlashCommand('create pdf link (online)', async ({ uuid }) => {
+    logseq.Editor.registerSlashCommand('Online pdf', async ({ uuid }) => {
         //dialog
         await logseq.showMainUI();
         await Swal.fire({
-            title: 'generate markdown',
+            title: 'Generate markdown',
             html:
                 '<input id="title" class="swal2-input" placeholder="link title"/>' +
                 '<input id="url" class="swal2-input" placeholder="URL (Online PDF)"/>',
@@ -314,7 +314,7 @@ const main = () => {
                 let title = result.value?.title || "";
                 title = includeTitle(title);
                 logseq.Editor.insertBlock(uuid, `![${title}](${result.value?.url})`, { focus: true, sibling: true });
-                logseq.UI.showMsg("Done! generate the link online pdf", "info");
+                logseq.UI.showMsg("Done!", "success");
             } else {//Cancel
                 logseq.UI.showMsg("Cancel", "warning");
             }
