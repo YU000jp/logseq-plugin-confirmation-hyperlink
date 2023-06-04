@@ -1,5 +1,5 @@
 import '@logseq/libs'; //https://plugins-doc.logseq.com/
-import { AppUserConfigs, BlockEntity } from '@logseq/libs/dist/LSPlugin.user';
+import { AppUserConfigs, BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user';
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
 import Swal from 'sweetalert2';//https://sweetalert2.github.io/
@@ -45,8 +45,9 @@ async function getTitle(url) {
         const responseText = await response.text();
         //title convert UTF-8
         let matches;
-        if (responseText.match(DEFAULT_REGEX.htmlTitleTag)) {
-            matches = await Encoding.convert(responseText.match(DEFAULT_REGEX.htmlTitleTag), 'UTF8', 'AUTO');//エンコード処理(文字化け対策)
+        const title = responseText.match(DEFAULT_REGEX.htmlTitleTag);
+        if (title) {
+            matches = await Encoding.convert(title, 'UTF8', 'AUTO');//エンコード処理(文字化け対策)
         } else {
             //titleタグから得られない場合
 
@@ -217,7 +218,7 @@ const MarkdownLink = (sweetAlert2background, sweetAlert2color) => {
         if (processing) { // 処理中の場合はリターンして重複を避ける
             return;
         }
-        const currentBlock = await logseq.Editor.getCurrentBlock();
+        const currentBlock = await logseq.Editor.getCurrentBlock() as BlockEntity | null;
         if (currentBlock) {
             if (blockSet !== currentBlock.uuid || txMeta?.outlinerOp === 'insertBlocks') {// 他のブロックを触ったら解除する
                 processing = true; // ロックをかける
@@ -226,9 +227,9 @@ const MarkdownLink = (sweetAlert2background, sweetAlert2color) => {
                     blockSet = currentBlock.uuid;
                     const textarea = parent.document.querySelector(`#edit-block-1-${currentBlock.uuid}`) as HTMLTextAreaElement;
                     if (textarea) {
-                        await textarea.addEventListener('blur', async () => {
+                        textarea.addEventListener('blur', () => {
                             // フォーカスが外れたときの処理
-                            await parseBlockForLink(currentBlock.uuid, sweetAlert2background, sweetAlert2color);
+                            parseBlockForLink(currentBlock.uuid, sweetAlert2background, sweetAlert2color);
                         }, { once: true });
                     }
                 } else {
@@ -250,8 +251,8 @@ const main = () => {
     //         try {
     //             await l10nSetup({ builtinTranslations: { ja } });
     //         } finally {
-    //             /* user settings */
-    //             logseq.useSettingsSchema(settingsTemplate);
+    /* user settings */
+    logseq.useSettingsSchema(settingsTemplate);
     //             if (!logseq.settings) {
     //                 setTimeout(() => {
     //                     logseq.showSettingsUI();
@@ -322,22 +323,48 @@ const main = () => {
         //dialog end
     });
 
-    logseq.provideStyle(`
-a.external-link::before {
-    content: "🔗";
-    color: #3dbae3;
-}
-`);
+    if (logseq.settings!.linkIcon === true) {
+        setLinkIcon();
+    }
+
+    logseq.onSettingsChanged((newSet: LSPluginBaseInfo['settings'], oldSet: LSPluginBaseInfo['settings']) => {
+        if (oldSet.linkIcon !== true && newSet.linkIcon === true) {
+            setLinkIcon();
+        } else if (oldSet.linkIcon !== false && newSet.linkIcon === false) {
+            removeProvideStyle("linkIcon");
+        }
+    });
 
 };/* end_main */
 
 
+const removeProvideStyle = (className: string) => {
+    const doc = parent.document.head.querySelector(`style[data-injected-style^="${className}"]`);
+    if (doc) {
+        doc.remove();
+    }
+};
+const setLinkIcon = () => {
+    logseq.provideStyle({
+        key: "linkIcon", style: `
+a.external-link::before {
+content: "🔗";
+color: #3dbae3;
+}
+`});
+};
 
 /* user setting */
 // https://logseq.github.io/plugins/types/SettingSchemaDesc.html
-// const settingsTemplate: SettingSchemaDesc[] = [
-
-// ];
+const settingsTemplate: SettingSchemaDesc[] = [
+    {
+        key: "linkIcon",
+        type: "boolean",
+        title: "Hyperlink icon 🔗",
+        description: "Turn ON/OFF",
+        default: true,
+    },
+];
 
 
 logseq.ready(main).catch(console.error);
