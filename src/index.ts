@@ -4,6 +4,8 @@ import { AppUserConfigs, BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from
 //import ja from "./translations/ja.json";
 import Swal from 'sweetalert2';//https://sweetalert2.github.io/
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
+let background;
+let color;
 
 //Credit
 //https://github.com/0x7b1/logseq-plugin-automatic-url-title
@@ -112,7 +114,7 @@ async function getFormatSettings() {
     return FORMAT_SETTINGS[preferredFormat];
 }
 
-const parseBlockForLink = async (uuid, sweetAlert2background, sweetAlert2color) => {
+const parseBlockForLink = async (uuid) => {
     if (!uuid) {
         return;
     }
@@ -140,14 +142,14 @@ const parseBlockForLink = async (uuid, sweetAlert2background, sweetAlert2color) 
             continue;
         }
         //dialog
-        await logseq.showMainUI();
+        logseq.showMainUI();
         await Swal.fire({
             title: "Convert to markdown link",
             text: `(${url})`,
             icon: "info",
             showCancelButton: true,
-            color: sweetAlert2color,
-            background: sweetAlert2background,
+            color,
+            background,
         })
             .then(async (result) => {
                 if (result) {//OK
@@ -159,8 +161,8 @@ const parseBlockForLink = async (uuid, sweetAlert2background, sweetAlert2color) 
                             input: "text",
                             inputValue: title,
                             showCancelButton: false,
-                            color: sweetAlert2color,
-                            background: sweetAlert2background,
+                            color,
+                            background,
                             inputValidator: (value) => {
                                 return new Promise((resolve) => {
                                     if (value) {
@@ -172,7 +174,7 @@ const parseBlockForLink = async (uuid, sweetAlert2background, sweetAlert2color) 
                             },
                         }).then(async (resultEditTitle) => {
                             if (resultEditTitle?.value) {
-                                const updatedTitle = await convertUrlToMarkdownLink(resultEditTitle.value, url, text, urlIndex, offset, formatSettings.applyFormat)
+                                const updatedTitle = convertUrlToMarkdownLink(resultEditTitle.value, url, text, urlIndex, offset, formatSettings.applyFormat)
                                 text = updatedTitle.text;
                                 offset = updatedTitle.offset;
                                 logseq.Editor.updateBlock(uuid, text);
@@ -210,7 +212,7 @@ function includeTitle(title: string): string {
     });
 }
 
-const MarkdownLink = (sweetAlert2background, sweetAlert2color) => {
+const MarkdownLink = () => {
     let blockSet: string = "";
     let processing: boolean = false; // ロック用フラグ
 
@@ -222,14 +224,14 @@ const MarkdownLink = (sweetAlert2background, sweetAlert2color) => {
         if (currentBlock) {
             if (blockSet !== currentBlock.uuid || txMeta?.outlinerOp === 'insertBlocks') {// 他のブロックを触ったら解除する
                 processing = true; // ロックをかける
-                const cancel = await parseBlockForLink(currentBlock.uuid, sweetAlert2background, sweetAlert2color) as boolean; // キャンセルだったらブロックをロックする
+                const cancel = await parseBlockForLink(currentBlock.uuid) as boolean; // キャンセルだったらブロックをロックする
                 if (cancel === true) {
                     blockSet = currentBlock.uuid;
                     const textarea = parent.document.querySelector(`#edit-block-1-${currentBlock.uuid}`) as HTMLTextAreaElement;
                     if (textarea) {
                         textarea.addEventListener('blur', () => {
                             // フォーカスが外れたときの処理
-                            parseBlockForLink(currentBlock.uuid, sweetAlert2background, sweetAlert2color);
+                            parseBlockForLink(currentBlock.uuid);
                         }, { once: true });
                     }
                 } else {
@@ -265,8 +267,6 @@ const main = () => {
 
     //get theme color
     //checkboxなどはCSSで上書きする必要あり
-    let background;
-    let color;
     const rootThemeColor = () => {
         const root = parent.document.querySelector(":root");
         if (root) {
@@ -281,45 +281,13 @@ const main = () => {
 
 
     //markdown link
-    MarkdownLink(background, color);
+    MarkdownLink();
 
 
     /* Slash Command `create pdf link (online)`  */
     logseq.Editor.registerSlashCommand('Online pdf', async ({ uuid }) => {
         //dialog
-        await logseq.showMainUI();
-        await Swal.fire({
-            title: 'Generate markdown',
-            html:
-                '<input id="title" class="swal2-input" placeholder="link title"/>' +
-                '<input id="url" class="swal2-input" placeholder="URL (Online PDF)"/>',
-            focusConfirm: false,
-            showCancelButton: true,
-            color: color,
-            background: background,
-            inputValidator: (value) => {
-                return new Promise((resolve) => {
-                    if (value) {
-                        resolve("");
-                    }
-                });
-            },
-            preConfirm: () => {
-                const title = (document.getElementById('title') as HTMLInputElement).value;
-                const url = (document.getElementById('url') as HTMLInputElement).value;
-                return { title: title, url: url };
-            },
-        }).then((result) => {
-            if (result.isConfirmed) {
-                let title = result.value?.title || "";
-                title = includeTitle(title);
-                logseq.Editor.insertBlock(uuid, `![${title}](${result.value?.url})`, { focus: true, sibling: true });
-                logseq.UI.showMsg("Done!", "success");
-            } else {//Cancel
-                logseq.UI.showMsg("Cancel", "warning");
-            }
-        });
-        await logseq.hideMainUI();
+        await onlinePDF(uuid);
         //dialog end
     });
 
@@ -364,7 +332,53 @@ const settingsTemplate: SettingSchemaDesc[] = [
         description: "Turn ON/OFF",
         default: true,
     },
+    {
+        key: "OnlinePDFtimestamp",
+        type: "boolean",
+        title: "Add current timestamp to Online pdf URL (To handle cases where a PDF is updated with the same URL)",
+        description: "Turn ON/OFF",
+        default: true,
+    }
 ];
 
 
 logseq.ready(main).catch(console.error);
+
+async function onlinePDF(uuid: string) {
+    await logseq.showMainUI();
+    await Swal.fire({
+        title: 'Generate markdown',
+        html: '<input id="title" class="swal2-input" placeholder="link title"/>' +
+            '<input id="url" class="swal2-input" placeholder="URL (Online PDF)"/>',
+        focusConfirm: false,
+        showCancelButton: true,
+        color,
+        background,
+        inputValidator: (value) => {
+            return new Promise((resolve) => {
+                if (value) {
+                    resolve("");
+                }
+            });
+        },
+        preConfirm: () => {
+            const title = (document.getElementById('title') as HTMLInputElement).value;
+            const url = (document.getElementById('url') as HTMLInputElement).value;
+            return { title: title, url: url };
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            let title = result.value?.title || "";
+            if (logseq.settings!.OnlinePDFtimestamp === true) {
+                title = includeTitle(title) + "#" + new Date().getTime();
+            } else {
+                title = includeTitle(title);
+            }
+            logseq.Editor.insertBlock(uuid, `![${title}](${result.value?.url})`, { focus: true, sibling: true });
+            logseq.UI.showMsg("Done!", "success");
+        } else { //Cancel
+            logseq.UI.showMsg("Cancel", "warning");
+        }
+    });
+    await logseq.hideMainUI();
+}
