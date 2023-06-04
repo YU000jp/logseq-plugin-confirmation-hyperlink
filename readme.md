@@ -13,13 +13,17 @@
 
 ---
 
-## Feature
+## Features
 
 > Paste a URL on the editing block
 
 - Existing auto plugins often perform unnecessary conversions and may result in garbled characters. To address this issue, our solution is to confirm with the user through a dialog before making any changes. To use this feature, simply paste the URL and a dialog will appear, allowing you to edit the title if necessary.
 
-## Demo
+### Demo
+
+![image](https://github.com/YU000jp/logseq-plugin-some-menu-extender/assets/111847207/1d67d7fb-bb2f-42d7-bc0c-f19e27bb5419)
+
+#### Slash command option `Online PDF`
 
 ---
 
