@@ -1,4 +1,4 @@
-# Logseq Plugin: Confirmation Link Title (Pastes URL)
+# Logseq Plugin: Confirmation Link Title (Paste URL)
 
 - Create a Markdown Hyperlink by pasting a URL and retrieving the page title through a confirmation dialog.
 
