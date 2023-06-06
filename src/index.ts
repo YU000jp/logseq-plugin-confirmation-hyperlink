@@ -18,6 +18,7 @@ const DEFAULT_REGEX = {
     htmlTitleTag: /<title(\s[^>]+)*>([^<]*)<\/title>/,
     line: /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/gi,
     imageExtension: /\.(gif|jpe?g|tiff?|png|webp|bmp|tga|psd|ai)$/i,
+    pdfExtension: /\.(pdf)$/i,
 };
 
 const FORMAT_SETTINGS = {
@@ -30,6 +31,7 @@ const FORMAT_SETTINGS = {
         formatBeginning: '][',
         applyFormat: (title, url) => `[[${url}][${title}]]`,
     },
+
 };
 
 function decodeHTML(input) {
@@ -43,16 +45,10 @@ function decodeHTML(input) {
 
 async function getTitle(url) {
     try {
-        const response = await fetch(url);
-        const responseText = await response.text();
         //title convert UTF-8
-        let matches;
-        const title = responseText.match(DEFAULT_REGEX.htmlTitleTag);
-        if (title) {
-            matches = await Encoding.convert(title, 'UTF8', 'AUTO');//エンコード処理(文字化け対策)
-        } else {
-            //titleタグから得られない場合
-
+        let matches = (await (await fetch(url)).text()).match(DEFAULT_REGEX.htmlTitleTag);
+        if (matches && /[^\p{ASCII}]/u.test(matches[0])) {
+            matches = await Encoding.convert(matches, 'UTF8', 'AUTO');//エンコード処理(文字化け対策)
         }
         if (matches !== null && matches.length > 1 && matches[2] !== null) {
             return decodeHTML(matches[2].trim());
@@ -64,7 +60,7 @@ async function getTitle(url) {
     return '';
 }
 
-function convertUrlToMarkdownLink(title: string, url, text, urlStartIndex, offset, applyFormat) {
+function convertUrlToMarkdownLink(title: string, url, text, urlStartIndex, offset, applyFormat, isPDF?: boolean) {
     if (title) {
         title = includeTitle(title);
     } else {
@@ -72,7 +68,12 @@ function convertUrlToMarkdownLink(title: string, url, text, urlStartIndex, offse
     }
 
     const startSection = text.slice(0, urlStartIndex);
-    const wrappedUrl = applyFormat(title, url);
+    let wrappedUrl;
+    if (isPDF === true) {
+        wrappedUrl = "!" + applyFormat(title, url);
+    } else {
+        wrappedUrl = applyFormat(title, url);
+    }
     const endSection = text.slice(urlStartIndex + url.length);
 
     return {
@@ -84,6 +85,11 @@ function convertUrlToMarkdownLink(title: string, url, text, urlStartIndex, offse
 function isImage(url) {
     const imageRegex = new RegExp(DEFAULT_REGEX.imageExtension);
     return imageRegex.test(url);
+}
+
+function isPDF(url) {
+    const pdfRegex = new RegExp(DEFAULT_REGEX.pdfExtension);
+    return pdfRegex.test(url);
 }
 
 function isAlreadyFormatted(text, url, urlIndex, formatBeginning) {
@@ -141,58 +147,94 @@ const parseBlockForLink = async (uuid) => {
         if (isAlreadyFormatted(text, url, urlIndex, formatSettings.formatBeginning) || isImage(url) || isWrappedIn(text, url)) {
             continue;
         }
-        //dialog
-        logseq.showMainUI();
-        await Swal.fire({
-            title: "Convert to markdown link",
-            text: `(${url})`,
-            icon: "info",
-            showCancelButton: true,
-            color,
-            background,
-        })
-            .then(async (result) => {
-                if (result) {//OK
-                    if (result?.value) {
-                        let title: string = await getTitle(url) || "";
-                        title = await includeTitle(title);
-                        await Swal.fire({
-                            title: "Edit markdown link title",
-                            input: "text",
-                            inputValue: title,
-                            showCancelButton: false,
-                            color,
-                            background,
-                            inputValidator: (value) => {
-                                return new Promise((resolve) => {
-                                    if (value) {
-                                        resolve("");
-                                    } else {
-                                        resolve('Input cannot be empty!');
-                                    }
-                                });
-                            },
-                        }).then(async (resultEditTitle) => {
-                            if (resultEditTitle?.value) {
-                                const updatedTitle = convertUrlToMarkdownLink(resultEditTitle.value, url, text, urlIndex, offset, formatSettings.applyFormat)
-                                text = updatedTitle.text;
-                                offset = updatedTitle.offset;
-                                logseq.Editor.updateBlock(uuid, text);
-                            }
-                        });
+        if (isPDF(url)) {
+            let urlPDF = url;
+            if (logseq.settings!.OnlinePDFtimestamp === true) {
+                urlPDF += "#" + new Date().getTime();
+            }
+            //dialog
+            logseq.showMainUI();
 
-
-                    } else {//Cancel
-                        //user cancel in dialog
-                        logseq.UI.showMsg("Cancel", "warning");
-                        Cancel = true;
-                    }
+            await Swal.fire({
+                title: "Edit the title of online pdf",
+                text: `(${urlPDF})`,
+                input: "text",
+                showCancelButton: false,
+                color,
+                background,
+                inputValidator: (value) => {
+                    return new Promise((resolve) => {
+                        if (value) {
+                            resolve("");
+                        } else {
+                            resolve('Input cannot be empty!');
+                        }
+                    });
+                },
+            }).then((resultEditTitle) => {
+                if (resultEditTitle?.value) {
+                    const updatedTitle = convertUrlToMarkdownLink(resultEditTitle.value, urlPDF, text, urlIndex, offset, formatSettings.applyFormat, true);
+                    text = updatedTitle.text;
+                    offset = updatedTitle.offset;
+                    logseq.Editor.updateBlock(uuid, text);
                 }
-            })
-            .finally(() => {
+            }).finally(() => {
                 logseq.hideMainUI({ restoreEditingCursor: true });
             });
-        //dialog end
+            //dialog end
+        } else {
+            //dialog
+            logseq.showMainUI();
+            await Swal.fire({
+                title: "Convert to markdown hyperlink",
+                text: `(${url})`,
+                icon: "info",
+                showCancelButton: true,
+                color,
+                background,
+            })
+                .then(async (result) => {
+                    if (result) {//OK
+                        if (result?.value) {
+                            const inputValue: string = includeTitle(await getTitle(url) || "");
+                            await Swal.fire({
+                                title: "Edit the title of hyperlink",
+                                input: "text",
+                                inputValue,
+                                showCancelButton: false,
+                                color,
+                                background,
+                                inputValidator: (value) => {
+                                    return new Promise((resolve) => {
+                                        if (value) {
+                                            resolve("");
+                                        } else {
+                                            resolve('Input cannot be empty!');
+                                        }
+                                    });
+                                },
+                            }).then((resultEditTitle) => {
+                                if (resultEditTitle?.value) {
+                                    const updatedTitle = convertUrlToMarkdownLink(resultEditTitle.value, url, text, urlIndex, offset, formatSettings.applyFormat)
+                                    text = updatedTitle.text;
+                                    offset = updatedTitle.offset;
+                                    logseq.Editor.updateBlock(uuid, text);
+                                }
+                            });
+
+
+                        } else {//Cancel
+                            //user cancel in dialog
+                            logseq.UI.showMsg("Cancel", "warning");
+                            Cancel = true;
+                        }
+                    }
+                })
+                .finally(() => {
+                    logseq.hideMainUI({ restoreEditingCursor: true });
+                });
+            //dialog end
+        }
     }
     return Cancel;
 }
@@ -284,13 +326,6 @@ const main = () => {
     MarkdownLink();
 
 
-    /* Slash Command `create pdf link (online)`  */
-    logseq.Editor.registerSlashCommand('Online pdf', async ({ uuid }) => {
-        //dialog
-        await onlinePDF(uuid);
-        //dialog end
-    });
-
     if (logseq.settings!.linkIcon === true) {
         setLinkIcon();
     }
@@ -343,42 +378,3 @@ const settingsTemplate: SettingSchemaDesc[] = [
 
 
 logseq.ready(main).catch(console.error);
-
-async function onlinePDF(uuid: string) {
-    await logseq.showMainUI();
-    await Swal.fire({
-        title: 'Generate markdown',
-        html: '<input id="title" class="swal2-input" placeholder="link title"/>' +
-            '<input id="url" class="swal2-input" placeholder="URL (Online PDF)"/>',
-        focusConfirm: false,
-        showCancelButton: true,
-        color,
-        background,
-        inputValidator: (value) => {
-            return new Promise((resolve) => {
-                if (value) {
-                    resolve("");
-                }
-            });
-        },
-        preConfirm: () => {
-            const title = (document.getElementById('title') as HTMLInputElement).value;
-            const url = (document.getElementById('url') as HTMLInputElement).value;
-            return { title: title, url: url };
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            let title = result.value?.title || "";
-            if (logseq.settings!.OnlinePDFtimestamp === true) {
-                title = includeTitle(title) + "#" + new Date().getTime();
-            } else {
-                title = includeTitle(title);
-            }
-            logseq.Editor.insertBlock(uuid, `![${title}](${result.value?.url})`, { focus: true, sibling: true });
-            logseq.UI.showMsg("Done!", "success");
-        } else { //Cancel
-            logseq.UI.showMsg("Cancel", "warning");
-        }
-    });
-    await logseq.hideMainUI();
-}
