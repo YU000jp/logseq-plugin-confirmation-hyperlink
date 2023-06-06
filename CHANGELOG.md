@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.1.0...v1.2.0) (2023-06-06)
+
+
+### Features
+
+* For online pdf ([c1aad30](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/c1aad30f3a294a700c4614113df536f4b1fd8272))
+* refactor & Add Online PDF timestamp to plugin settings ([5ca7b38](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/5ca7b3844a3a3c319c756836048b8c50504ebeb6))
+
 # [1.1.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.0.0...v1.1.0) (2023-06-04)
 
 
