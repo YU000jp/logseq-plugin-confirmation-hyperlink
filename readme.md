@@ -35,7 +35,7 @@
 - Select `Marketplace`
 - Type `URL` in the search field, select it from the search results and install
 
-   ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/f23810ba-8823-4043-9c74-bff5edf0d917)
+   ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/9f130d88-b3b1-4d71-9c18-5fd6279ba76d)
 
 ### Usage
 
