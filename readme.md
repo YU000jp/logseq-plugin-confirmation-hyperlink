@@ -49,11 +49,6 @@
 
 ## Prior art & Credit
 
-### Library
-
-- [@logseq/libs](https://logseq.github.io/plugins/)
-- [logseq-l10n](https://github.com/sethyuan/logseq-l10n)
-
 ### Logseq-plugin
 
 - [0x7b1/ automatic url title](https://github.com/0x7b1/logseq-plugin-automatic-url-title)
