@@ -2,10 +2,7 @@ import '@logseq/libs'; //https://plugins-doc.logseq.com/
 import { AppUserConfigs, BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user';
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
-import Swal from 'sweetalert2';//https://sweetalert2.github.io/
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
-let background;
-let color;
 
 //Credit
 //https://github.com/0x7b1/logseq-plugin-automatic-url-title
@@ -149,91 +146,197 @@ const parseBlockForLink = async (uuid) => {
         }
         if (isPDF(url)) {
             let urlPDF = url;
-            if (logseq.settings!.OnlinePDFtimestamp === true) {
-                urlPDF += "#" + new Date().getTime();
-            }
-            //dialog
-            logseq.showMainUI();
+            if (logseq.settings!.OnlinePDFtimestamp === true) urlPDF += "#" + new Date().getTime();
 
-            await Swal.fire({
-                title: "Edit the title of online pdf",
-                text: `(${urlPDF})`,
-                input: "text",
-                showCancelButton: false,
-                color,
-                background,
-                inputValidator: (value) => {
-                    return new Promise((resolve) => {
-                        if (value) {
-                            resolve("");
-                        } else {
-                            resolve('Input cannot be empty!');
-                        }
-                    });
+            const blockElement = parent.document.getElementsByClassName(uuid) as HTMLCollectionOf<HTMLElement>;
+            if (!blockElement) return;
+            //エレメントから位置を取得する
+            const rect = blockElement[0].getBoundingClientRect();
+            if (!rect) return;
+            const top: string = Number(rect.top + window.pageYOffset - 130) + "px";
+            const left: string = Number(rect.left + window.pageXOffset + 100) + "px";
+            const key = "confirmation-hyperlink";
+            logseq.provideUI({
+                attrs: {
+                    title: 'Edit the title of online pdf',
                 },
-            }).then((resultEditTitle) => {
-                if (resultEditTitle?.value) {
-                    const updatedTitle = convertUrlToMarkdownLink(resultEditTitle.value, urlPDF, text, urlIndex, offset, formatSettings.applyFormat, true);
-                    text = updatedTitle.text;
-                    offset = updatedTitle.offset;
-                    logseq.Editor.updateBlock(uuid, text);
-                }
-            }).finally(() => {
-                logseq.hideMainUI({ restoreEditingCursor: true });
-            });
-            //dialog end
-        } else {
-            //dialog
-            logseq.showMainUI();
-            await Swal.fire({
-                title: "Convert to markdown hyperlink",
-                text: `(${url})`,
-                icon: "info",
-                showCancelButton: true,
-                color,
-                background,
-            })
-                .then(async (result) => {
-                    if (result) {//OK
-                        if (result?.value) {
-                            const inputValue: string = includeTitle(await getTitle(url) || "");
-                            await Swal.fire({
-                                title: "Edit the title of hyperlink",
-                                input: "text",
-                                inputValue,
-                                showCancelButton: false,
-                                color,
-                                background,
-                                inputValidator: (value) => {
-                                    return new Promise((resolve) => {
-                                        if (value) {
-                                            resolve("");
-                                        } else {
-                                            resolve('Input cannot be empty!');
-                                        }
-                                    });
-                                },
-                            }).then((resultEditTitle) => {
-                                if (resultEditTitle?.value) {
-                                    const updatedTitle = convertUrlToMarkdownLink(resultEditTitle.value, url, text, urlIndex, offset, formatSettings.applyFormat)
-                                    text = updatedTitle.text;
-                                    offset = updatedTitle.offset;
-                                    logseq.Editor.updateBlock(uuid, text);
-                                }
-                            });
-
-
-                        } else {//Cancel
-                            //user cancel in dialog
-                            logseq.UI.showMsg("Cancel", "warning");
-                            Cancel = true;
-                        }
+                key,
+                reset: true,
+                template: `
+                    <div id="hyperlink">
+                    <p>Title: <input id="hyperlinkTitle" type="text" style="width:270px"/>
+                    <button id="hyperlinkButton">Submit</button></p>
+                    <p>URL: (<a href="${urlPDF}" target="_blank">${urlPDF}</a>)</p>
+                    </div>
+                    <style>
+                    div#hyperlink input {
+                        background: var(--ls-primary-background-color);
+                        color: var(--ls-primary-text-color);
+                        boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
                     }
-                })
-                .finally(() => {
-                    logseq.hideMainUI({ restoreEditingCursor: true });
-                });
-            //dialog end
+                    div#hyperlink button {
+                        border: 1px solid var(--ls-secondary-background-color);
+                        boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
+                    }
+                    div#hyperlink button:hover {
+                        background: var(--ls-secondary-background-color);
+                        color: var(--ls-secondary-text-color);
+                    }
+                    div.light-theme span#dot-${uuid}{
+                        outline: 2px solid var(--ls-link-ref-text-color);
+                    }
+                    div.dark-theme span#dot-${uuid}{
+                        outline: 2px solid aliceblue;
+                    }
+                    </style>
+                    `,
+                style: {
+                    width: "420px",
+                    height: "120px",
+                    left,
+                    top,
+                    paddingLeft: "1.8em",
+                    backgroundColor: 'var(--ls-primary-background-color)',
+                    color: 'var(--ls-primary-text-color)',
+                    boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
+                },
+            });
+            setTimeout(() => {
+                let processing: Boolean = false;
+                const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement;
+                if (button) {
+                    button.addEventListener("click", async () => {
+                        if (processing) return;
+                        processing = true;
+                        const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value;
+                        if (!inputTitle) return;
+                        const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
+                        if (block) {
+                            const updatedTitle = convertUrlToMarkdownLink(inputTitle, urlPDF, text, urlIndex, offset, formatSettings.applyFormat, true);
+                            text = updatedTitle.text;
+                            offset = updatedTitle.offset;
+                            logseq.Editor.updateBlock(uuid, text);
+                        } else {
+                            logseq.UI.showMsg("Error: Block not found", "warning");
+                        }
+                        //実行されたらポップアップを削除
+                        const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null;
+                        if (element) element.remove();
+                        processing = false;
+                    });
+                }
+            }, 100);
+
+        } else {
+
+
+            const blockElement = parent.document.getElementsByClassName(uuid) as HTMLCollectionOf<HTMLElement>;
+            if (!blockElement) return;
+            //エレメントから位置を取得する
+            const rect = blockElement[0].getBoundingClientRect();
+            if (!rect) return;
+            const top: string = Number(rect.top + window.pageYOffset - 130) + "px";
+            const left: string = Number(rect.left + window.pageXOffset + 100) + "px";
+            const key = "confirmation-hyperlink";
+            logseq.provideUI({
+                attrs: {
+                    title: 'Convert to markdown hyperlink',
+                  },
+                key,
+                reset: true,
+                template: `
+                    <div id="hyperlink">
+                    <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px"/>
+                    <button id="hyperlinkButtonGetTitle">Get the title</button>
+                    <button id="hyperlinkButton">Submit</button></p>
+                    <p>URL: (<a href="${url}" target="_blank">${url}</a>)</p>
+                    </div>
+                    <style>
+                    div#hyperlink input {
+                        background: var(--ls-primary-background-color);
+                        color: var(--ls-primary-text-color);
+                        boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
+                    }
+                    div#hyperlink button {
+                        border: 1px solid var(--ls-secondary-background-color);
+                        boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
+                        text-decoration: underline;
+                    }
+                    div#hyperlink button:hover {
+                        background: var(--ls-secondary-background-color);
+                        color: var(--ls-secondary-text-color);
+                    }
+                    div.light-theme span#dot-${uuid}{
+                        outline: 2px solid var(--ls-link-ref-text-color);
+                    }
+                    div.dark-theme span#dot-${uuid}{
+                        outline: 2px solid aliceblue;
+                    }
+                    button#hyperlinkButton {
+                        display: none;
+                    }
+                    </style>
+                    `,
+                style: {
+                    width: "650px",
+                    height: "120px",
+                    left,
+                    top,
+                    paddingLeft: "1.8em",
+                    backgroundColor: 'var(--ls-primary-background-color)',
+                    color: 'var(--ls-primary-text-color)',
+                    boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
+                },
+            });
+            setTimeout(() => {
+                let processing: Boolean = false;
+
+                //タイトル取得ボタン
+                const buttonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement;
+                if (buttonGetTitle) {
+                    buttonGetTitle.addEventListener("click", async () => {
+                        if (processing) return;
+                        processing = true;
+                        const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement);
+                        if (!inputTitle) return;
+                        const title = await getTitle(url);
+                        if (title) {
+                            (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value = includeTitle(title);
+                        }
+                        //タイトルボタンを消す
+                        const element = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null;
+                        if (element) element.remove();
+                        //実行ボタンを表示
+                        const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement | null;
+                        if (button) button.style.display = "inline";
+                        processing = false;
+                    });
+                }
+
+                //実行ボタン
+                const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement;
+                if (button) {
+                    button.addEventListener("click", async () => {
+                        if (processing) return;
+                        processing = true;
+                        const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value;
+                        if (!inputTitle) return;
+                        const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
+                        if (block) {
+                            const updatedTitle = convertUrlToMarkdownLink(inputTitle, url, text, urlIndex, offset, formatSettings.applyFormat);
+                            text = updatedTitle.text;
+                            offset = updatedTitle.offset;
+                            logseq.Editor.updateBlock(uuid, text);
+                        } else {
+                            logseq.UI.showMsg("Error: Block not found", "warning");
+                        }
+                        //実行されたらポップアップを削除
+                        const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null;
+                        if (element) element.remove();
+                        processing = false;
+                    });
+                }
+            }, 100);
         }
     }
     return Cancel;
@@ -259,9 +362,7 @@ const MarkdownLink = () => {
     let processing: boolean = false; // ロック用フラグ
 
     logseq.DB.onChanged(async ({ txMeta }) => {
-        if (processing) { // 処理中の場合はリターンして重複を避ける
-            return;
-        }
+        if (processing) return; // 処理中の場合はリターンして重複を避ける
         const currentBlock = await logseq.Editor.getCurrentBlock() as BlockEntity | null;
         if (currentBlock) {
             if (blockSet !== currentBlock.uuid || txMeta?.outlinerOp === 'insertBlocks') {// 他のブロックを触ったら解除する
@@ -305,21 +406,6 @@ const main = () => {
     //             }
     //         }
     //     })();
-
-
-    //get theme color
-    //checkboxなどはCSSで上書きする必要あり
-    const rootThemeColor = () => {
-        const root = parent.document.querySelector(":root");
-        if (root) {
-            const rootStyles = getComputedStyle(root);
-            background = rootStyles.getPropertyValue("--ls-block-properties-background-color") || "#ffffff";
-            color = rootStyles.getPropertyValue("--ls-primary-text-color") || "#000000";
-        }
-    };
-    rootThemeColor();
-    logseq.App.onThemeModeChanged(() => { rootThemeColor(); });
-    //end
 
 
     //markdown link

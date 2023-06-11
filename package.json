@@ -21,8 +21,7 @@
     },
     "dependencies": {
         "@logseq/libs": "^0.0.15",
-        "encoding-japanese": "^2.0.0",
-        "sweetalert2": "^11.7.10"
+        "encoding-japanese": "^2.0.0"
     },
     "devDependencies": {
         "@semantic-release/changelog": "^6.0.3",
