@@ -2,10 +2,7 @@ import '@logseq/libs'; //https://plugins-doc.logseq.com/
 import { AppUserConfigs, BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user';
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
-import Swal from 'sweetalert2';//https://sweetalert2.github.io/
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
-let background;
-let color;
 
 //Credit
 //https://github.com/0x7b1/logseq-plugin-automatic-url-title
@@ -409,21 +406,6 @@ const main = () => {
     //             }
     //         }
     //     })();
-
-
-    //get theme color
-    //checkboxなどはCSSで上書きする必要あり
-    const rootThemeColor = () => {
-        const root = parent.document.querySelector(":root");
-        if (root) {
-            const rootStyles = getComputedStyle(root);
-            background = rootStyles.getPropertyValue("--ls-block-properties-background-color") || "#ffffff";
-            color = rootStyles.getPropertyValue("--ls-primary-text-color") || "#000000";
-        }
-    };
-    rootThemeColor();
-    logseq.App.onThemeModeChanged(() => { rootThemeColor(); });
-    //end
 
 
     //markdown link
