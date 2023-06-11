@@ -13,13 +13,9 @@
 
 ---
 
-## Features
-
-> Paste a URL on the editing block
+## Feature
 
    ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/e4ca591a-b6bb-4077-bd5d-4e42b184cb53)
-
-#### Support Online PDF
 
 ---
 
@@ -35,7 +31,8 @@
 
 ### Usage
 
-- To use this feature, simply paste the URL and a dialog will appear, allowing you to edit the title if necessary.
+- To use this feature, simply paste the URL and a dialog will appear, allowing you to edit the title if necessary. 
+If it is a PDF URL, it will be converted to a dedicated markdown format.
 
 ---
 
