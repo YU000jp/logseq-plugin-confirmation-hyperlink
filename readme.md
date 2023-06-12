@@ -32,6 +32,15 @@
 - To use this feature, simply paste the URL and a dialog will appear, allowing you to edit the title if necessary. 
 If it is a PDF URL, it will be converted to a dedicated markdown format.
 
+#### Plugin Settings
+
+- Hyperlink icon 🔗: boolean
+   - `true` default
+   - `false`
+ - Add current timestamp to Online pdf URL (To handle cases where a PDF is updated with the same URL): boolean
+   - `true` default
+   - `false`
+
 ---
 
 ## Showcase / Questions / Ideas / Help
