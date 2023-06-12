@@ -7,7 +7,7 @@
 [![latest release version](https://img.shields.io/github/v/release/YU000jp/logseq-plugin-confirmation-hyperlink)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
 [![License](https://img.shields.io/github/license/YU000jp/logseq-plugin-confirmation-hyperlink?color=blue)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/YU000jp/logseq-plugin-confirmation-hyperlink/total.svg)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
-<!-- Published 2023 -->
+ Published 2023/06/12
 
 ---
 
@@ -25,7 +25,7 @@
 - Select `Marketplace`
 - Type `URL` in the search field, select it from the search results and install
 
-   ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/9f130d88-b3b1-4d71-9c18-5fd6279ba76d)
+   ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/ed931a9d-5c67-4a4a-9286-7069b2680d6c)
 
 ### Usage
 
