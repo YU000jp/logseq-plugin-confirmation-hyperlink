@@ -52,9 +52,11 @@ function convertUrlToMarkdownLink(title: string, url, text, applyFormat, isPDF?:
     title = includeTitle(title);
     let wrappedUrl;
     if (isPDF === true) {
-        let urlPDF = url;
-        if (logseq.settings!.OnlinePDFtimestamp === true) urlPDF += "#" + new Date().getTime();
-        wrappedUrl = "!" + applyFormat(title, urlPDF);
+        if (logseq.settings!.OnlinePDFtimestamp === true) {
+            wrappedUrl = "!" + applyFormat(title, url + "#" + new Date().getTime());
+        } else {
+            wrappedUrl = "!" + applyFormat(title, url);
+        }
     } else {
         wrappedUrl = applyFormat(title, url);
     }
@@ -156,7 +158,7 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                         const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
                         if (block) {
                             const updatedTitle = convertUrlToMarkdownLink(inputTitle, url, text, formatSettings.applyFormat, true);
-                            if (updatedTitle) logseq.Editor.updateBlock(uuid, text);
+                            if (updatedTitle) logseq.Editor.updateBlock(uuid, updatedTitle);
                         } else {
                             logseq.UI.showMsg("Error: Block not found", "warning");
                         }
