@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.3.2...v1.3.3) (2023-06-15)
+
+
+### Bug Fixes
+
+* **bug:** not working for online PDF ([b958e28](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/b958e28d01b60d81597d1b3ec964542bafba1bfd))
+
 ## [1.3.2](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.3.1...v1.3.2) (2023-06-15)
 
 
