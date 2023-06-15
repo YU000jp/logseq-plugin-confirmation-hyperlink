@@ -292,11 +292,13 @@ const main = () => {
     //         }
     //     })();
 
-
+    //CSS text-overflow
+    //https://developer.mozilla.org/ja/docs/Web/CSS/text-overflow
     logseq.provideStyle(`
         div#hyperlink p {
+            overflow: hidden;
             white-space: nowrap;
-            overflow-x: auto;
+            text-overflow: ellipsis;
         }
         div#hyperlink input {
             background: var(--ls-primary-background-color);
