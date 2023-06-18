@@ -1,3 +1,10 @@
+## [1.3.4](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.3.3...v1.3.4) (2023-06-18)
+
+
+### Bug Fixes
+
+* **bug:** Prompt extends beyond the window, hindering operation. ([2e2bd10](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/2e2bd10f51b4675cc9d99ce606362621a92d1509))
+
 ## [1.3.3](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.3.2...v1.3.3) (2023-06-15)
 
 
