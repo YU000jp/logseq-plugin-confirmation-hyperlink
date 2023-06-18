@@ -108,12 +108,16 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
         const rect = blockElement[0].getBoundingClientRect() as DOMRect;
         if (!rect) return;
 
+
         const offsetTop = Number(rect.top - 142);
-        let top = "2em";
-        if (Number.isInteger(offsetTop))  top = String(offsetTop) + "px";
-        const offsetLeft = Number(rect.left - 40);
-        let left = "40vw";
-        if (Number.isInteger(rect.right))  left = String(offsetLeft) + "px";
+        let top = "";
+        if (offsetTop > 0) {
+            top = String(offsetTop) + "px";
+        } else {
+            top = Number(rect.top + 40) + "px";
+        }
+        //TODO: なぜかrect.rightが正しく取得できないため、右側はオーバーランする
+        const left = String(Number(rect.left - 10)) + "px";
         
         const key = "confirmation-hyperlink";
 
