@@ -105,10 +105,16 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
         if (!blockElement) return;
 
         //エレメントから位置を取得する
-        const rect = blockElement[0].getBoundingClientRect();
+        const rect = blockElement[0].getBoundingClientRect() as DOMRect;
         if (!rect) return;
-        const top: string = Number(rect.top + window.pageYOffset - 142) + "px";
-        const left: string = Number(rect.left + window.pageXOffset + 80) + "px";
+
+        const offsetTop = Number(rect.top - 142);
+        let top = "2em";
+        if (Number.isInteger(offsetTop))  top = String(offsetTop) + "px";
+        const offsetLeft = Number(rect.left - 40);
+        let left = "40vw";
+        if (Number.isInteger(rect.right))  left = String(offsetLeft) + "px";
+        
         const key = "confirmation-hyperlink";
 
         if (isPDF(url)) {
@@ -136,11 +142,13 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                     </style>
                     `,
                 style: {
-                    width: "650px",
-                    height: "140px",
+                    width: "610px",
+                    height: "125px",
                     left,
+                    right: "unset",
+                    bottom: "unset",
                     top,
-                    paddingLeft: "1.8em",
+                    paddingLeft: "0.4em",
                     backgroundColor: 'var(--ls-primary-background-color)',
                     color: 'var(--ls-primary-text-color)',
                     boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
@@ -181,7 +189,7 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                 reset: true,
                 template: `
                     <div id="hyperlink">
-                    <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px"/>
+                    <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px" disabled="true"/>
                     <button id="hyperlinkButtonGetTitle">Get the title</button>
                     <button id="hyperlinkButton">Submit</button></p>
                     <p>URL: (<a href="${url}" target="_blank">${url}</a>)</p>
@@ -199,11 +207,13 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                     </style>
                     `,
                 style: {
-                    width: "650px",
-                    height: "140px",
+                    width: "610px",
+                    height: "125px",
                     left,
+                    right: "unset",
+                    bottom: "unset",
                     top,
-                    paddingLeft: "1.8em",
+                    paddingLeft: "0.4em",
                     backgroundColor: 'var(--ls-primary-background-color)',
                     color: 'var(--ls-primary-text-color)',
                     boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
@@ -221,12 +231,14 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                         const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement);
                         if (!inputTitle) return;
                         const title = await getTitle(url);
+                        const elementTitleValue = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement;
                         if (title) {
-                            (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value = includeTitle(title);
+                            elementTitleValue.value = includeTitle(title);
                         }
+                        elementTitleValue.disabled = false;
                         //タイトルボタンを消す
-                        const element = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null;
-                        if (element) element.remove();
+                        const elementButtonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null;
+                        if (elementButtonGetTitle) elementButtonGetTitle.remove();
                         //実行ボタンを表示
                         const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement | null;
                         if (button) button.style.display = "inline";
