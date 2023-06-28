@@ -1,5 +1,6 @@
 import '@logseq/libs'; //https://plugins-doc.logseq.com/
 import { AppUserConfigs, BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user';
+import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage';
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
@@ -47,20 +48,9 @@ async function getTitle(url) {
     return '';
 }
 
-function convertUrlToMarkdownLink(title: string, url, text, applyFormat, isPDF?: boolean) {
+function convertUrlToMarkdownLink(title: string, url, text, applyFormat) {
     if (!title) return;
-    title = includeTitle(title);
-    let wrappedUrl;
-    if (isPDF === true) {
-        if (logseq.settings!.OnlinePDFtimestamp === true) {
-            wrappedUrl = "!" + applyFormat(title, url + "#" + new Date().getTime());
-        } else {
-            wrappedUrl = "!" + applyFormat(title, url);
-        }
-    } else {
-        wrappedUrl = applyFormat(title, url);
-    }
-    return text.replace(url, wrappedUrl);
+    return text.replace(url, applyFormat(includeTitle(title), url));
 }
 const isImage = (url: string) => (new RegExp(DEFAULT_REGEX.imageExtension)).test(url);
 const isPDF = (url: string) => (new RegExp(DEFAULT_REGEX.pdfExtension)).test(url);
@@ -86,9 +76,9 @@ async function getFormatSettings() {
     return FORMAT_SETTINGS[preferredFormat];
 }
 
-const parseBlockForLink = async (rawBlock: BlockEntity) => {
+const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
     if (!rawBlock) return;
-    const uuid = rawBlock!.uuid;
+    const uuid = rawBlock?.uuid || null;
     if (!uuid) return;
     let text = rawBlock.content;
     const urls = text.match(DEFAULT_REGEX.line);
@@ -118,11 +108,9 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
         }
         //TODO: なぜかrect.rightが正しく取得できないため、右側はオーバーランする
         const left = String(Number(rect.left - 10)) + "px";
-        
         const key = "confirmation-hyperlink";
 
         if (isPDF(url)) {
-
             logseq.provideUI({
                 attrs: {
                     title: 'Edit the title of online pdf',
@@ -132,7 +120,7 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                 replace: true,
                 template: `
                     <div id="hyperlink">
-                    <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px"/>
+                    <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px" value="${url.split("/").pop() as string}"/>
                     <button id="hyperlinkButton">Submit</button></p>
                     <p>URL: (<a href="${url}" target="_blank">${url}</a>)</p>
                     </div>
@@ -169,8 +157,7 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                         if (!inputTitle) return;
                         const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
                         if (block) {
-                            const updatedTitle = convertUrlToMarkdownLink(inputTitle, url, text, formatSettings.applyFormat, true);
-                            if (updatedTitle) logseq.Editor.updateBlock(uuid, updatedTitle);
+                            await convertOnlinePDF(url, uuid, inputTitle);
                         } else {
                             logseq.UI.showMsg("Error: Block not found", "warning");
                         }
@@ -181,6 +168,7 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                     });
                 }
             }, 100);
+
 
         } else {
 
@@ -232,13 +220,9 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
                     buttonGetTitle.addEventListener("click", async () => {
                         if (processing) return;
                         processing = true;
-                        const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement);
-                        if (!inputTitle) return;
                         const title = await getTitle(url);
                         const elementTitleValue = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement;
-                        if (title) {
-                            elementTitleValue.value = includeTitle(title);
-                        }
+                        if (title) elementTitleValue.value = includeTitle(title);
                         elementTitleValue.disabled = false;
                         //タイトルボタンを消す
                         const elementButtonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null;
@@ -275,6 +259,43 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
         }
         continue;
     }
+}
+
+async function convertOnlinePDF(url: string, uuid: string, inputTitle: string) {
+    await fetch(new URL(url))
+        .then(async (res: any) => {
+            if (res.status !== 200) {
+                //読み込みできなかった場合
+                logseq.UI.showMsg("Error: " + res.status, "error", { timeout: 1200 });
+                return;
+            }
+            //アセットに保存する
+            const storage = logseq.Assets.makeSandboxStorage() as IAsyncStorage;
+            //ファイル重複チェックを入れる(timestampをつける)
+            const name = url.split("/").pop() as string;
+            let rename: string;
+            const find: Boolean = await storage.hasItem(name) as boolean;
+            if (find === true) {
+                rename = `${timestamp()}_` + name;
+            } else {
+                rename = name;
+            }
+            await storage.setItem(rename, await res.arrayBuffer() as string);
+            if (find === true) {
+                //重複しているためtimestampをつけたことを伝える
+                logseq.UI.showMsg(`The file is find from assets. The name has been changed to \`${rename}\``, "warning", { timeout: 2000 });
+            } else {
+                //ファイルの作成完了を伝える
+                logseq.UI.showMsg(`The file is saved into assets. \`${name}\``, "success", { timeout: 1200 });
+            }
+            //ブロックの更新
+            const block = await logseq.Editor.getBlock(uuid) as BlockEntity;
+            if (block) await logseq.Editor.updateBlock(uuid, block.content.replace(url, `![${inputTitle}](../assets/storages/${logseq.baseInfo.id}/${rename})`));
+        })
+        .catch(error => {
+            //読み込みできなかった場合
+            logseq.UI.showMsg(error, "error", { timeout: 1200 });
+        });
 }
 
 function includeTitle(title: string): string {
@@ -338,7 +359,7 @@ const main = () => {
 
 
     let processing: boolean = false; // ロック用フラグ
-    logseq.DB.onChanged(async () => {
+    logseq.DB.onChanged(async (): Promise<void> => {
         if (processing === true) return; // 処理中の場合はリターンして重複を避ける
         const currentBlock = await logseq.Editor.getCurrentBlock() as BlockEntity | null;
         if (currentBlock) {
@@ -358,6 +379,9 @@ const main = () => {
     });
 
 };/* end_main */
+
+
+const timestamp = () => new Date().toISOString().slice(0, 19).replace(/[-:]/g, "").replace("T", "_");
 
 
 const removeProvideStyle = (className: string) => {
@@ -381,17 +405,10 @@ const settingsTemplate: SettingSchemaDesc[] = [
     {
         key: "linkIcon",
         type: "boolean",
-        title: "Hyperlink icon 🔗",
-        description: "Turn ON/OFF",
+        title: "Use hyperlink icon 🔗",
+        description: "",
         default: true,
     },
-    {
-        key: "OnlinePDFtimestamp",
-        type: "boolean",
-        title: "Add current timestamp to Online pdf URL (To handle cases where a PDF is updated with the same URL)",
-        description: "Turn ON/OFF",
-        default: true,
-    }
 ];
 
 
