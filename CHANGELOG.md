@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.3.5...v1.4.0) (2023-06-28)
+
+
+### Features
+
+* **For PDF:** Save online PDF into assets as file ([84db124](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/84db124249d140b4add5798cae3cbd99f0ef322f))
+
 ## [1.3.5](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.3.4...v1.3.5) (2023-06-18)
 
 
