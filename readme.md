@@ -27,8 +27,7 @@
 
 ### Usage
 
-- To use this feature, simply paste the URL and a dialog will appear, allowing you to edit the title if necessary. 
-If it is a PDF URL, it will be converted to a dedicated markdown format.
+- To use this feature, simply paste the URL and a dialog will appear, allowing you to edit the title if necessary.  If it is a PDF URL, it will be converted to a dedicated markdown format and saved as a file into assets.
 
 #### Plugin Settings
 
