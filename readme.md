@@ -34,9 +34,6 @@
 - Hyperlink icon 🔗: boolean
    - `true` default
    - `false`
- - Add current timestamp to Online pdf URL (To handle cases where a PDF is updated with the same URL): boolean
-   - `true` default
-   - `false`
 
 ---
 
