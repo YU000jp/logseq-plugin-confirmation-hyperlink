@@ -29,13 +29,18 @@
 
 - To use this feature, simply paste the URL and a dialog will appear, allowing you to edit the title if necessary.  If it is a PDF URL, it will be converted to a dedicated markdown format and saved as a file into assets.
 
-#### Plugin Settings
+### Plugin Settings
 
 - Hyperlink icon 🔗: boolean
-   - `true` default
-   - `false`
+   - `true`
+   - `false` default
 
 ---
+
+## Recommend
+
+- *[Awesome Linkes](https://github.com/yoyurec/logseq-awesome-links)* plugin
+  - Favicons for external links (with caching)
 
 ## Showcase / Questions / Ideas / Help
 
