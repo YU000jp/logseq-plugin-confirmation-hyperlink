@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.5.1...v1.6.0) (2023-07-01)
+
+
+### Features
+
+* **Add:** context menu item `Create hyperlink` ([0d777ac](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/0d777ac2e768faeb437eb4892d645d49e6c42723))
+
 ## [1.5.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.5.0...v1.5.1) (2023-07-01)
 
 
