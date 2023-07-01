@@ -4,6 +4,7 @@ import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage';
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
+const key = "confirmHyperlink";
 
 //Credit
 //https://github.com/0x7b1/logseq-plugin-automatic-url-title
@@ -92,23 +93,28 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
         if (isAlreadyFormatted(text, urlIndex, formatSettings.formatBeginning) || isImage(url) || isWrappedIn(text, url)) continue;
 
         const blockElement = parent.document.getElementsByClassName(uuid) as HTMLCollectionOf<HTMLElement>;
-        if (!blockElement) return;
-
-        //エレメントから位置を取得する
-        const rect = blockElement[0].getBoundingClientRect() as DOMRect;
-        if (!rect) return;
-
-
-        const offsetTop = Number(rect.top - 142);
         let top = "";
-        if (offsetTop > 0) {
-            top = String(offsetTop) + "px";
+        let left = "";
+        let right = "";
+        //エレメントから位置を取得する
+        const rect = (blockElement[0]) ? blockElement[0]!.getBoundingClientRect() as DOMRect | undefined : null;
+
+        if (blockElement && rect) {
+            const offsetTop = Number(rect.top - 142);
+            top = (offsetTop > 0) ?
+                Number(offsetTop) + "px"
+                : Number(rect.top + 40) + "px";
+
+            left = String(Number(rect.left - 10)) + "px";
+            const offsetRight = Number(rect.right - 350);
+            right = (offsetRight > 0) ?
+                String(rect.right) + "px"
+                : "1em";
+            right = "";
         } else {
-            top = Number(rect.top + 40) + "px";
+            top = "2em";
+            right = "1em";
         }
-        //TODO: なぜかrect.rightが正しく取得できないため、右側はオーバーランする
-        const left = String(Number(rect.left - 10)) + "px";
-        const key = "confirmation-hyperlink";
 
         if (isPDF(url)) {
             logseq.provideUI({
@@ -136,8 +142,8 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
                 style: {
                     width: "580px",
                     height: "125px",
-                    left,
-                    right: "unset",
+                    left:  (left !== "") ? left : "unset",
+                    right: (right !== "") ? right : "unset",
                     bottom: "unset",
                     top,
                     paddingLeft: "0.4em",
