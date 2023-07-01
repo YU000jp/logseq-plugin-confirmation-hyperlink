@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.5.0...v1.5.1) (2023-07-01)
+
+
+### Bug Fixes
+
+* **Change:** Use icon default `false` ([562749a](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/562749a600715a15999cfaba1b27a6ff4f532651))
+
 # [1.5.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.4.0...v1.5.0) (2023-07-01)
 
 
