@@ -121,8 +121,8 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
                 template: `
                     <div id="hyperlink">
                     <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px" value="${url.split("/").pop() as string}"/>
-                    <button id="hyperlinkButton">Submit</button></p>
-                    <p>URL: (<a href="${url}" target="_blank">${url}</a>)</p>
+                    <button id="hyperlinkButton" title="Submit">☑️</button></p>
+                    <p>URL: (<a href="${url}" target="_blank" title="URL">${url}</a>)</p>
                     </div>
                     <style>
                     div.light-theme span#dot-${uuid}{
@@ -134,7 +134,7 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
                     </style>
                     `,
                 style: {
-                    width: "610px",
+                    width: "580px",
                     height: "125px",
                     left,
                     right: "unset",
@@ -182,9 +182,9 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
                 template: `
                     <div id="hyperlink">
                     <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px" disabled="true"/>
-                    <button id="hyperlinkButtonGetTitle">Get the title</button>
-                    <button id="hyperlinkButton">Submit</button></p>
-                    <p>URL: (<a href="${url}" target="_blank">${url}</a>)</p>
+                    <button id="hyperlinkButtonGetTitle" title="Get the title">Get</button>
+                    <button id="hyperlinkButton" title="Submit">☑️</button></p>
+                    <p>URL: (<a href="${url}" target="_blank" title="URL">${url}</a>)</p>
                     </div>
                     <style>
                     div.light-theme span#dot-${uuid}{
@@ -199,7 +199,7 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
                     </style>
                     `,
                 style: {
-                    width: "610px",
+                    width: "580px",
                     height: "125px",
                     left,
                     right: "unset",
@@ -215,9 +215,9 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
                 let processing: Boolean = false;
 
                 //タイトル取得ボタン
-                const buttonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement;
-                if (buttonGetTitle) {
-                    buttonGetTitle.addEventListener("click", async () => {
+                const divElement = parent.document.getElementById("hyperlink") as HTMLDivElement;
+                if (divElement) {
+                    divElement.addEventListener("mouseover", async () => {
                         if (processing) return;
                         processing = true;
                         const title = await getTitle(url);
@@ -348,6 +348,9 @@ const main = () => {
             border: 1px solid var(--ls-secondary-background-color);
             boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
             text-decoration: underline;
+        }
+        div#hyperlink button#hyperlinkButton {
+            font-size: 1.8em;
         }
         div#hyperlink button:hover {
             background: var(--ls-secondary-background-color);
