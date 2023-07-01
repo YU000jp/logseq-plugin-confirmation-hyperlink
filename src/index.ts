@@ -416,7 +416,7 @@ const settingsTemplate: SettingSchemaDesc[] = [
         type: "boolean",
         title: "Use hyperlink icon 🔗",
         description: "",
-        default: true,
+        default: false,
     },
 ];
 
