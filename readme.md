@@ -38,7 +38,7 @@
 ### Option
 
 - Trigger `Create Hyperlink`
-  -  From the Block context menu (to open the options, right-click the bullet that has the desired property)
+  -  From the block context menu (to open the options, right-click the bullet that has the desired property)
 
 ---
 
