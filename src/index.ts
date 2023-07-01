@@ -117,75 +117,23 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
         }
 
         if (isPDF(url)) {
-            logseq.provideUI({
-                attrs: {
-                    title: 'Edit the title of online pdf',
-                },
-                key,
-                reset: true,
-                replace: true,
-                template: `
-                    <div id="hyperlink">
-                    <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px" value="${url.split("/").pop() as string}"/>
-                    <button id="hyperlinkButton" title="Submit">☑️</button></p>
-                    <p>URL: (<a href="${url}" target="_blank" title="URL">${url}</a>)</p>
-                    </div>
-                    <style>
-                    div.light-theme span#dot-${uuid}{
-                        outline: 2px solid var(--ls-link-ref-text-color);
-                    }
-                    div.dark-theme span#dot-${uuid}{
-                        outline: 2px solid aliceblue;
-                    }
-                    </style>
-                    `,
-                style: {
-                    width: "580px",
-                    height: "125px",
-                    left:  (left !== "") ? left : "unset",
-                    right: (right !== "") ? right : "unset",
-                    bottom: "unset",
-                    top,
-                    paddingLeft: "0.4em",
-                    backgroundColor: 'var(--ls-primary-background-color)',
-                    color: 'var(--ls-primary-text-color)',
-                    boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
-                },
-            });
-            setTimeout(() => {
-                let processing: Boolean = false;
-                const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement;
-                if (button) {
-                    button.addEventListener("click", async () => {
-                        if (processing) return;
-                        processing = true;
-                        const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value;
-                        if (!inputTitle) return;
-                        const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
-                        if (block) {
-                            await convertOnlinePDF(url, uuid, inputTitle);
-                        } else {
-                            logseq.UI.showMsg("Error: Block not found", "warning");
-                        }
-                        //実行されたらポップアップを削除
-                        const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null;
-                        if (element) element.remove();
-                        processing = false;
-                    });
-                }
-            }, 100);
-
-
+            showDialogForPDF(url, uuid, left, right, top);
         } else {
+            showDialog(url, uuid, left, top, text, formatSettings);
+        }
+        continue;
+    }
+}
 
-            logseq.provideUI({
-                attrs: {
-                    title: 'Convert to markdown hyperlink',
-                },
-                key,
-                replace: true,
-                reset: true,
-                template: `
+function showDialog(url: string, uuid: string, left: string, top: string, text: string, formatSettings: { formatBeginning: string; applyFormat: (title: any, url: any) => string; }) {
+    logseq.provideUI({
+        attrs: {
+            title: 'Convert to markdown hyperlink',
+        },
+        key,
+        replace: true,
+        reset: true,
+        template: `
                     <div id="hyperlink">
                     <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px" disabled="true"/>
                     <button id="hyperlinkButtonGetTitle" title="Get the title">Get</button>
@@ -204,67 +152,124 @@ const parseBlockForLink = async (rawBlock: BlockEntity): Promise<void> => {
                     }
                     </style>
                     `,
-                style: {
-                    width: "580px",
-                    height: "125px",
-                    left,
-                    right: "unset",
-                    bottom: "unset",
-                    top,
-                    paddingLeft: "0.4em",
-                    backgroundColor: 'var(--ls-primary-background-color)',
-                    color: 'var(--ls-primary-text-color)',
-                    boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
-                },
+        style: {
+            width: "580px",
+            height: "125px",
+            left,
+            right: "unset",
+            bottom: "unset",
+            top,
+            paddingLeft: "0.4em",
+            backgroundColor: 'var(--ls-primary-background-color)',
+            color: 'var(--ls-primary-text-color)',
+            boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
+        },
+    });
+    setTimeout(() => {
+        let processing: Boolean = false;
+
+        //タイトル取得ボタン
+        const divElement = parent.document.getElementById("hyperlink") as HTMLDivElement;
+        if (divElement) {
+            divElement.addEventListener("mouseover", async () => {
+                if (processing) return;
+                processing = true;
+                const title = await getTitle(url);
+                const elementTitleValue = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement;
+                if (title) elementTitleValue.value = includeTitle(title);
+                elementTitleValue.disabled = false;
+                //タイトルボタンを消す
+                const elementButtonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null;
+                if (elementButtonGetTitle) elementButtonGetTitle.remove();
+                //実行ボタンを表示
+                const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement | null;
+                if (button) button.style.display = "inline";
+                processing = false;
             });
-            setTimeout(() => {
-                let processing: Boolean = false;
-
-                //タイトル取得ボタン
-                const divElement = parent.document.getElementById("hyperlink") as HTMLDivElement;
-                if (divElement) {
-                    divElement.addEventListener("mouseover", async () => {
-                        if (processing) return;
-                        processing = true;
-                        const title = await getTitle(url);
-                        const elementTitleValue = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement;
-                        if (title) elementTitleValue.value = includeTitle(title);
-                        elementTitleValue.disabled = false;
-                        //タイトルボタンを消す
-                        const elementButtonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null;
-                        if (elementButtonGetTitle) elementButtonGetTitle.remove();
-                        //実行ボタンを表示
-                        const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement | null;
-                        if (button) button.style.display = "inline";
-                        processing = false;
-                    });
-                }
-
-                //実行ボタン
-                const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement;
-                if (button) {
-                    button.addEventListener("click", async () => {
-                        if (processing) return;
-                        processing = true;
-                        const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value;
-                        if (!inputTitle) return;
-                        const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
-                        if (block) {
-                            const updatedTitle = convertUrlToMarkdownLink(inputTitle, url, text, formatSettings.applyFormat);
-                            if (updatedTitle) logseq.Editor.updateBlock(uuid, updatedTitle);
-                        } else {
-                            logseq.UI.showMsg("Error: Block not found", "warning");
-                        }
-                        //実行されたらポップアップを削除
-                        const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null;
-                        if (element) element.remove();
-                        processing = false;
-                    });
-                }
-            }, 100);
         }
-        continue;
-    }
+
+        //実行ボタン
+        const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement;
+        if (button) {
+            button.addEventListener("click", async () => {
+                if (processing) return;
+                processing = true;
+                const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value;
+                if (!inputTitle) return;
+                const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
+                if (block) {
+                    const updatedTitle = convertUrlToMarkdownLink(inputTitle, url, text, formatSettings.applyFormat);
+                    if (updatedTitle) logseq.Editor.updateBlock(uuid, updatedTitle);
+                } else {
+                    logseq.UI.showMsg("Error: Block not found", "warning");
+                }
+                //実行されたらポップアップを削除
+                const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null;
+                if (element) element.remove();
+                processing = false;
+            });
+        }
+    }, 100);
+}
+
+function showDialogForPDF(url: string, uuid: string, left: string, right: string, top: string) {
+    logseq.provideUI({
+        attrs: {
+            title: 'Edit the title of online pdf',
+        },
+        key,
+        reset: true,
+        replace: true,
+        template: `
+                    <div id="hyperlink">
+                    <p>Title: <input id="hyperlinkTitle" type="text" style="width:450px" value="${url.split("/").pop() as string}"/>
+                    <button id="hyperlinkButton" title="Submit">☑️</button></p>
+                    <p>URL: (<a href="${url}" target="_blank" title="URL">${url}</a>)</p>
+                    </div>
+                    <style>
+                    div.light-theme span#dot-${uuid}{
+                        outline: 2px solid var(--ls-link-ref-text-color);
+                    }
+                    div.dark-theme span#dot-${uuid}{
+                        outline: 2px solid aliceblue;
+                    }
+                    </style>
+                    `,
+        style: {
+            width: "580px",
+            height: "125px",
+            left: (left !== "") ? left : "unset",
+            right: (right !== "") ? right : "unset",
+            bottom: "unset",
+            top,
+            paddingLeft: "0.4em",
+            backgroundColor: 'var(--ls-primary-background-color)',
+            color: 'var(--ls-primary-text-color)',
+            boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
+        },
+    });
+    setTimeout(() => {
+        let processing: Boolean = false;
+        const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement;
+        if (button) {
+            button.addEventListener("click", async () => {
+                if (processing) return;
+                processing = true;
+                const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value;
+                if (!inputTitle) return;
+                const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
+                if (block) {
+                    await convertOnlinePDF(url, uuid, inputTitle);
+                } else {
+                    logseq.UI.showMsg("Error: Block not found", "warning");
+                }
+                //実行されたらポップアップを削除
+                const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null;
+                if (element) element.remove();
+                processing = false;
+            });
+        }
+    }, 100);
 }
 
 async function convertOnlinePDF(url: string, uuid: string, inputTitle: string) {
@@ -374,6 +379,17 @@ const main = () => {
         if (currentBlock) {
             processing = true; // ロックをかける
             await parseBlockForLink(currentBlock);
+        }
+        processing = false; // ロックを解除する
+    });
+
+
+    logseq.Editor.registerBlockContextMenuItem("Create Hyperlink", async ({ uuid }) => {
+        if (processing === true) return;
+        const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
+        if (block) {
+            processing = true; // ロックをかける
+            await parseBlockForLink(block);
         }
         processing = false; // ロックを解除する
     });
