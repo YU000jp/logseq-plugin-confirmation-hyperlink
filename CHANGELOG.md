@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.4.0...v1.5.0) (2023-07-01)
+
+
+### Bug Fixes
+
+* **bug:** Prompt extends beyond the window, hindering operation. ([d92d247](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/d92d247ddf75f1418d21ad69b50123f5baa6e523))
+
+
+### Features
+
+* Get the title on mouseover ([612f3dc](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/612f3dc39df70046e6778741c3508c61cc469e6f))
+
 # [1.4.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.3.5...v1.4.0) (2023-06-28)
 
 
