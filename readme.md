@@ -34,6 +34,11 @@
 - Hyperlink icon 🔗: boolean
    - `true`
    - `false` default
+ 
+### Option
+
+- Trigger `Create Hyperlink`
+  -  From the Block context menu (to open the options, right-click the bullet that has the desired property)
 
 ---
 
