@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.0...v1.6.1) (2023-07-02)
+
+
+### Bug Fixes
+
+* **bug:** Remove console error ([0903b5c](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/0903b5cd4e98e728fbef251b06a7e7968c11650a))
+
 # [1.6.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.5.1...v1.6.0) (2023-07-01)
 
 
