@@ -6,6 +6,89 @@ import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage';
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
 const key = "confirmHyperlink";
 
+
+/* main */
+const main = () => {
+    //     (async () => {
+    //         try {
+    //             await l10nSetup({ builtinTranslations: { ja } });
+    //         } finally {
+    /* user settings */
+    logseq.useSettingsSchema(settingsTemplate);
+    //             if (!logseq.settings) {
+    //                 setTimeout(() => {
+    //                     logseq.showSettingsUI();
+    //                 }
+    //                     , 300);
+    //             }
+    //         }
+    //     })();
+
+    //CSS text-overflow
+    //https://developer.mozilla.org/ja/docs/Web/CSS/text-overflow
+    logseq.provideStyle(`
+        div#hyperlink p {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        div#hyperlink input {
+            background: var(--ls-primary-background-color);
+            color: var(--ls-primary-text-color);
+            boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
+        }
+        div#hyperlink button {
+            border: 1px solid var(--ls-secondary-background-color);
+            boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
+            text-decoration: underline;
+        }
+        div#hyperlink button#hyperlinkButton {
+            font-size: 1.8em;
+        }
+        div#hyperlink button:hover {
+            background: var(--ls-secondary-background-color);
+            color: var(--ls-secondary-text-color);
+        }
+        `);
+
+    if (logseq.settings!.linkIcon === true) setLinkIcon();
+
+
+    let processing: boolean = false; // ロック用フラグ
+    logseq.DB.onChanged(async (e): Promise<void> => {
+        if (!e) return;
+        if (processing === true) return; // 処理中の場合はリターンして重複を避ける
+        const currentBlock = await logseq.Editor.getCurrentBlock() as BlockEntity | null;
+        if (currentBlock) {
+            processing = true; // ロックをかける
+            await parseBlockForLink(currentBlock);
+        }
+        processing = false; // ロックを解除する
+    });
+
+
+    logseq.Editor.registerBlockContextMenuItem("Create Hyperlink", async ({ uuid }) => {
+        if (processing === true) return;
+        const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
+        if (block) {
+            processing = true; // ロックをかける
+            await parseBlockForLink(block);
+        }
+        processing = false; // ロックを解除する
+    });
+
+
+    logseq.onSettingsChanged((newSet: LSPluginBaseInfo['settings'], oldSet: LSPluginBaseInfo['settings']) => {
+        if (oldSet.linkIcon !== true && newSet.linkIcon === true) {
+            setLinkIcon();
+        } else if (oldSet.linkIcon !== false && newSet.linkIcon === false) {
+            removeProvideStyle("linkIcon");
+        }
+    });
+
+};/* end_main */
+
+
 //Credit
 //https://github.com/0x7b1/logseq-plugin-automatic-url-title
 
@@ -29,8 +112,8 @@ const FORMAT_SETTINGS = {
         formatBeginning: '][',
         applyFormat: (title, url) => `[[${url}][${title}]]`,
     },
-
 };
+
 
 const decodeHTML = (input) => (new DOMParser().parseFromString(input, 'text/html')).documentElement.textContent;
 
@@ -175,9 +258,9 @@ function showDialog(url: string, uuid: string, left: string, top: string, text: 
                 if (processing) return;
                 processing = true;
                 const title = await getTitle(url);
-                const elementTitleValue = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement;
-                if (title) elementTitleValue.value = includeTitle(title);
-                elementTitleValue.disabled = false;
+                const elementTitle = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement;
+                if (title && elementTitle) elementTitle.value = includeTitle(title);
+                elementTitle.disabled = false;
                 //タイトルボタンを消す
                 const elementButtonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null;
                 if (elementButtonGetTitle) elementButtonGetTitle.remove();
@@ -323,88 +406,6 @@ function includeTitle(title: string): string {
         }
     });
 }
-
-
-/* main */
-const main = () => {
-    //     (async () => {
-    //         try {
-    //             await l10nSetup({ builtinTranslations: { ja } });
-    //         } finally {
-    /* user settings */
-    logseq.useSettingsSchema(settingsTemplate);
-    //             if (!logseq.settings) {
-    //                 setTimeout(() => {
-    //                     logseq.showSettingsUI();
-    //                 }
-    //                     , 300);
-    //             }
-    //         }
-    //     })();
-
-    //CSS text-overflow
-    //https://developer.mozilla.org/ja/docs/Web/CSS/text-overflow
-    logseq.provideStyle(`
-        div#hyperlink p {
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-        }
-        div#hyperlink input {
-            background: var(--ls-primary-background-color);
-            color: var(--ls-primary-text-color);
-            boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
-        }
-        div#hyperlink button {
-            border: 1px solid var(--ls-secondary-background-color);
-            boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
-            text-decoration: underline;
-        }
-        div#hyperlink button#hyperlinkButton {
-            font-size: 1.8em;
-        }
-        div#hyperlink button:hover {
-            background: var(--ls-secondary-background-color);
-            color: var(--ls-secondary-text-color);
-        }
-        `);
-
-    if (logseq.settings!.linkIcon === true) setLinkIcon();
-
-
-    let processing: boolean = false; // ロック用フラグ
-    logseq.DB.onChanged(async (): Promise<void> => {
-        if (processing === true) return; // 処理中の場合はリターンして重複を避ける
-        const currentBlock = await logseq.Editor.getCurrentBlock() as BlockEntity | null;
-        if (currentBlock) {
-            processing = true; // ロックをかける
-            await parseBlockForLink(currentBlock);
-        }
-        processing = false; // ロックを解除する
-    });
-
-
-    logseq.Editor.registerBlockContextMenuItem("Create Hyperlink", async ({ uuid }) => {
-        if (processing === true) return;
-        const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
-        if (block) {
-            processing = true; // ロックをかける
-            await parseBlockForLink(block);
-        }
-        processing = false; // ロックを解除する
-    });
-
-
-    logseq.onSettingsChanged((newSet: LSPluginBaseInfo['settings'], oldSet: LSPluginBaseInfo['settings']) => {
-        if (oldSet.linkIcon !== true && newSet.linkIcon === true) {
-            setLinkIcon();
-        } else if (oldSet.linkIcon !== false && newSet.linkIcon === false) {
-            removeProvideStyle("linkIcon");
-        }
-    });
-
-};/* end_main */
-
 
 const timestamp = () => new Date().toISOString().slice(0, 19).replace(/[-:]/g, "").replace("T", "_");
 
