@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.1...v1.6.2) (2023-07-18)
+
+
+### Bug Fixes
+
+* **bug:** Cannot edit title ([0e25d9d](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/0e25d9d0eb190f71894a42c8d43efc53c30327d9))
+
 ## [1.6.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.0...v1.6.1) (2023-07-02)
 
 
