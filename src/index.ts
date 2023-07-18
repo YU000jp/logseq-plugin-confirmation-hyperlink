@@ -4,6 +4,7 @@ import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage';
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
 import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
+import { once } from 'events';
 const key = "confirmHyperlink";
 
 
@@ -268,7 +269,7 @@ function showDialog(url: string, uuid: string, left: string, top: string, text: 
                 const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement | null;
                 if (button) button.style.display = "inline";
                 processing = false;
-            });
+            },{ once: true });
         }
 
         //実行ボタン
