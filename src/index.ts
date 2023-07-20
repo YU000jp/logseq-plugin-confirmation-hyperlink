@@ -118,6 +118,7 @@ const FORMAT_SETTINGS = {
 async function getTitleFromURL(url: string): Promise<string> {
     try {
         const res = await fetch(url) as Response;
+        if (!res.ok) return '';
         const buffer = await res.arrayBuffer() as ArrayBuffer;
         const encoding = getEncodingFromHTML(buffer);
         const decodedHtml = new TextDecoder(encoding).decode(buffer);//文字化け対策
