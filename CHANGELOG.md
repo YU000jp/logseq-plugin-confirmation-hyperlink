@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.2...v1.6.3) (2023-07-20)
+
+
+### Bug Fixes
+
+* **bug:** 日本語サイト(Shift JISなど)が文字化けしないようにする ([129cd60](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/129cd60ab096b3b75130c4b8ebbb648a3492cc47))
+
 ## [1.6.2](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.1...v1.6.2) (2023-07-18)
 
 
