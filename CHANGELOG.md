@@ -1,3 +1,11 @@
+## [1.6.5](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.4...v1.6.5) (2023-07-20)
+
+
+### Bug Fixes
+
+* **bug:** error code `uuid` ([9a9fbdb](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/9a9fbdbd8af7a4dbdc3e4d1ab9ef0e885ec8d60f))
+* **bug:** remove console error ([45994d1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/45994d1ca05bf3cf49935f11a9e1092d1eee0018))
+
 ## [1.6.4](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.3...v1.6.4) (2023-07-20)
 
 
