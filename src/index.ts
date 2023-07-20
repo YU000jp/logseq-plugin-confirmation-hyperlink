@@ -3,8 +3,6 @@ import { AppUserConfigs, BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from
 import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage';
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
-import Encoding from 'encoding-japanese';//https://github.com/polygonplanet/encoding.js
-import { once } from 'events';
 const key = "confirmHyperlink";
 
 
@@ -116,22 +114,32 @@ const FORMAT_SETTINGS = {
 };
 
 
-const decodeHTML = (input) => (new DOMParser().parseFromString(input, 'text/html')).documentElement.textContent;
 
-async function getTitle(url) {
+async function getTitleFromURL(url: string): Promise<string> {
     try {
-        //title convert UTF-8
-        let matches = (await (await fetch(url)).text()).match(DEFAULT_REGEX.htmlTitleTag);
-        if (matches && /[^\p{ASCII}]/u.test(matches[0])) {
-            matches = await Encoding.convert(matches, 'UTF8', 'AUTO');//エンコード処理(文字化け対策)
-        }
-        if (matches !== null && matches.length > 1 && matches[2] !== null) return decodeHTML(matches[2].trim());
+        const res = await fetch(url) as Response;
+        const buffer = await res.arrayBuffer() as ArrayBuffer;
+        const encoding = getEncodingFromHTML(buffer);
+        const decodedHtml = new TextDecoder(encoding).decode(buffer);//文字化け対策
+        let matches = decodedHtml.match(DEFAULT_REGEX.htmlTitleTag);
+        if (matches !== null && matches.length > 1 && matches[2] !== null) return matches[2].trim();
     } catch (e) {
         console.error(e);
     }
 
     return '';
 }
+
+function getEncodingFromHTML(buffer: ArrayBuffer): string {
+    const uint8Array = new Uint8Array(buffer);
+    const dom = new DOMParser().parseFromString(new TextDecoder().decode(uint8Array), 'text/html');
+    return (
+        dom.querySelector('meta[charset]')?.getAttribute?.('charset') ??
+        (dom.querySelector('meta[http-equiv="content-type"]') as HTMLMetaElement)?.content?.match?.(/charset=([^;]+)/)?.[1] ??
+        'UTF-8'
+    );
+}
+
 
 function convertUrlToMarkdownLink(title: string, url, text, applyFormat) {
     if (!title) return;
@@ -157,7 +165,6 @@ function isWrappedIn(text, url) {
 async function getFormatSettings() {
     const { preferredFormat } = await logseq.App.getUserConfigs() as AppUserConfigs;
     if (!preferredFormat) return null;
-
     return FORMAT_SETTINGS[preferredFormat];
 }
 
@@ -258,7 +265,7 @@ function showDialog(url: string, uuid: string, left: string, top: string, text: 
             divElement.addEventListener("mouseover", async () => {
                 if (processing) return;
                 processing = true;
-                const title = await getTitle(url);
+                const title = await getTitleFromURL(url);
                 const elementTitle = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement;
                 if (title && elementTitle) elementTitle.value = includeTitle(title);
                 elementTitle.disabled = false;
@@ -269,7 +276,7 @@ function showDialog(url: string, uuid: string, left: string, top: string, text: 
                 const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement | null;
                 if (button) button.style.display = "inline";
                 processing = false;
-            },{ once: true });
+            }, { once: true });
         }
 
         //実行ボタン

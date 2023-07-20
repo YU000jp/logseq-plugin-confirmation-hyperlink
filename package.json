@@ -20,8 +20,7 @@
         "prod": "npm run clean && vite build"
     },
     "dependencies": {
-        "@logseq/libs": "^0.0.15",
-        "encoding-japanese": "^2.0.0"
+        "@logseq/libs": "^0.0.15"
     },
     "devDependencies": {
         "@semantic-release/changelog": "^6.0.3",
