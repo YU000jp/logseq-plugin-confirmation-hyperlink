@@ -42,7 +42,7 @@
 
 ---
 
-## Recommend with
+## Recommend
 
 - *[Awesome Links](https://github.com/yoyurec/logseq-awesome-links)* plugin
   - Favicons for external links (with caching)
