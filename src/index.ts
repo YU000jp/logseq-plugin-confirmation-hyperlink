@@ -53,26 +53,25 @@ const main = () => {
     if (logseq.settings!.linkIcon === true) setLinkIcon();
 
 
-    let processing: boolean = false; // ロック用フラグ
-    logseq.DB.onChanged(async () => {
+    let processing: Boolean = false; // ロック用フラグ
+    logseq.DB.onChanged(async ({ blocks }) => {
         if (processing === true) return; // 処理中の場合はリターンして重複を避ける
-        const currentBlock = await logseq.Editor.getCurrentBlock() as BlockEntity | null;
-        if (currentBlock) {
-            processing = true; // ロックをかける
-            await parseBlockForLink(currentBlock);
-        }
-        processing = false; // ロックを解除する
+        processing = true; // ロックをかける
+        blocks.forEach(async (block) => {
+            await parseBlockForLink(block.uuid, block.content);
+        });
+        processing = false;
     });
-
 
     logseq.Editor.registerBlockContextMenuItem("Create Hyperlink", async ({ uuid }) => {
         if (processing === true) return;
         const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
         if (block) {
             processing = true; // ロックをかける
-            await parseBlockForLink(block);
+            await parseBlockForLink(block.uuid, block.content);
         }
         processing = false; // ロックを解除する
+        return;
     });
 
 
@@ -168,18 +167,17 @@ async function getFormatSettings() {
     return FORMAT_SETTINGS[preferredFormat];
 }
 
-const parseBlockForLink = async (rawBlock: BlockEntity) => {
-    const uuid = rawBlock?.uuid;
-    let text = rawBlock.content;
-    const urls = text.match(DEFAULT_REGEX.line);
+const parseBlockForLink = async (uuid: string, content: string) => {
+    if (!uuid || !content) return;
+    const urls = content.match(DEFAULT_REGEX.line) as RegExpMatchArray | null;
     if (!urls) return;
 
-    const formatSettings = await getFormatSettings();
+    const formatSettings = await getFormatSettings() as { formatBeginning: string; applyFormat: (title: any, url: any) => string; }
     if (!formatSettings) return;
     let offset = 0;
     for (const url of urls) {
-        const urlIndex = text.indexOf(url, offset);
-        if (isAlreadyFormatted(text, urlIndex, formatSettings.formatBeginning) || isImage(url) || isWrappedIn(text, url)) continue;
+        const urlIndex = content.indexOf(url, offset) as number;
+        if (isAlreadyFormatted(content, urlIndex, formatSettings.formatBeginning) || isImage(url) || isWrappedIn(content, url)) continue;
 
         const blockElement = parent.document.getElementsByClassName(uuid) as HTMLCollectionOf<HTMLElement>;
         let top = "";
@@ -208,14 +206,13 @@ const parseBlockForLink = async (rawBlock: BlockEntity) => {
         if (isPDF(url)) {
             showDialogForPDF(url, uuid, left, right, top);
         } else {
-            showDialog(url, uuid, left, top, text, formatSettings);
+            showDialog(url, uuid, left, top, content, formatSettings);
         }
         continue;
     }
 }
 
 function showDialog(url: string, uuid: string, left: string, top: string, text: string, formatSettings: { formatBeginning: string; applyFormat: (title: any, url: any) => string; }) {
-        if(!uuid) return;
     logseq.provideUI({
         attrs: {
             title: 'Convert to markdown hyperlink',
@@ -303,7 +300,6 @@ function showDialog(url: string, uuid: string, left: string, top: string, text: 
 }
 
 function showDialogForPDF(url: string, uuid: string, left: string, right: string, top: string) {
-    if(uuid) return;
     logseq.provideUI({
         attrs: {
             title: 'Edit the title of online pdf',
