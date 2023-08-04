@@ -1,10 +1,13 @@
 import '@logseq/libs'; //https://plugins-doc.logseq.com/
-import { AppUserConfigs, BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user';
+import { AppGraphInfo, BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user';
 import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage';
 //import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 //import ja from "./translations/ja.json";
 const key = "confirmHyperlink";
-
+let demoGraph: boolean = false;
+let onBlockChangedToggle: boolean = false;
+let processing: Boolean = false; // ロック用フラグ
+let setURL = "";
 
 /* main */
 const main = () => {
@@ -48,32 +51,43 @@ const main = () => {
             background: var(--ls-secondary-background-color);
             color: var(--ls-secondary-text-color);
         }
-        `);
+    `);
 
     if (logseq.settings!.linkIcon === true) setLinkIcon();
 
-
-    let processing: Boolean = false; // ロック用フラグ
-    logseq.DB.onChanged(async ({ blocks }) => {
-        if (processing === true) return; // 処理中の場合はリターンして重複を避ける
-        processing = true; // ロックをかける
-        blocks.forEach(async (block) => {
-            await parseBlockForLink(block.uuid, block.content);
-        });
-        processing = false;
+    //ページ読み込み時
+    logseq.App.onPageHeadActionsSlotted(async () => {
+        demoGraph = await checkDemoGraph() as boolean;
+        if (demoGraph === true && onBlockChangedToggle === false) {
+            onBlockChanged();
+            onBlockChangedToggle = true;
+        }
     });
+
+    //グラフ変更時
+    logseq.App.onCurrentGraphChanged(async () => {
+        demoGraph = await checkDemoGraph() as boolean;
+        if (demoGraph === true && onBlockChangedToggle === false) {
+            onBlockChanged();
+            onBlockChangedToggle = true;
+        }
+    });
+
+    if (demoGraph === false) {
+        onBlockChanged();
+        onBlockChangedToggle = true;
+    }
 
     logseq.Editor.registerBlockContextMenuItem("Create Hyperlink", async ({ uuid }) => {
         if (processing === true) return;
         const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null;
         if (block) {
             processing = true; // ロックをかける
-            await parseBlockForLink(block.uuid, block.content);
+            await parseBlockForLink(block.uuid, block.content, block.format);
         }
         processing = false; // ロックを解除する
         return;
     });
-
 
     logseq.onSettingsChanged((newSet: LSPluginBaseInfo['settings'], oldSet: LSPluginBaseInfo['settings']) => {
         if (oldSet.linkIcon !== true && newSet.linkIcon === true) {
@@ -85,6 +99,23 @@ const main = () => {
 
 };/* end_main */
 
+
+
+const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
+    if (demoGraph === true
+        || processing === true
+        || txMeta?.outlinerOp !== "saveBlock"
+        || setURL !== ""
+    ) return; // 処理中の場合はリターンして重複を避ける
+    processing = true; // ロックをかける
+    const targetBlock = blocks.find((block) => block.page && !block.name && block.content && block.content !== "") as BlockEntity | null;
+    if (!targetBlock) return;
+    await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format);
+    processing = false;
+});
+
+
+const checkDemoGraph = async (): Promise<boolean> => (await logseq.App.getCurrentGraph() as AppGraphInfo | null === null) ? true : false;//デモグラフの場合は返り値がnull
 
 //Credit
 //https://github.com/0x7b1/logseq-plugin-automatic-url-title
@@ -161,24 +192,25 @@ function isWrappedIn(text, url) {
 }
 
 
-async function getFormatSettings() {
-    const { preferredFormat } = await logseq.App.getUserConfigs() as AppUserConfigs;
-    if (!preferredFormat) return null;
-    return FORMAT_SETTINGS[preferredFormat];
-}
+const getFormatSettings = (format: string) => FORMAT_SETTINGS[format];
 
-const parseBlockForLink = async (uuid: string, content: string) => {
+let processingParse = false;
+const parseBlockForLink = async (uuid: string, content: string, format: string) => {
     if (!uuid || !content) return;
     const urls = content.match(DEFAULT_REGEX.line) as RegExpMatchArray | null;
     if (!urls) return;
 
-    const formatSettings = await getFormatSettings() as { formatBeginning: string; applyFormat: (title: any, url: any) => string; }
+    const formatSettings = await getFormatSettings(format) as { formatBeginning: string; applyFormat: (title: any, url: any) => string; }
     if (!formatSettings) return;
     let offset = 0;
+    if (processingParse === true) return;
+    processingParse = true;
     for (const url of urls) {
         const urlIndex = content.indexOf(url, offset) as number;
         if (isAlreadyFormatted(content, urlIndex, formatSettings.formatBeginning) || isImage(url) || isWrappedIn(content, url)) continue;
 
+        if (setURL === url && parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement) return;
+        setURL = url;
         const blockElement = parent.document.getElementsByClassName(uuid) as HTMLCollectionOf<HTMLElement>;
         let top = "";
         let left = "";
@@ -208,8 +240,8 @@ const parseBlockForLink = async (uuid: string, content: string) => {
         } else {
             showDialog(url, uuid, left, top, content, formatSettings);
         }
-        continue;
     }
+    processingParse = false;
 }
 
 function showDialog(url: string, uuid: string, left: string, top: string, text: string, formatSettings: { formatBeginning: string; applyFormat: (title: any, url: any) => string; }) {
@@ -293,6 +325,7 @@ function showDialog(url: string, uuid: string, left: string, top: string, text: 
                 //実行されたらポップアップを削除
                 const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null;
                 if (element) element.remove();
+                setURL = '';
                 processing = false;
             });
         }
@@ -354,6 +387,7 @@ function showDialogForPDF(url: string, uuid: string, left: string, right: string
                 const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null;
                 if (element) element.remove();
                 processing = false;
+                setURL = '';
             });
         }
     }, 100);
