@@ -1,3 +1,10 @@
+## [1.6.6](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.5...v1.6.6) (2023-08-04)
+
+
+### Bug Fixes
+
+* **bug:** Prevent dialogs from updating while editing ([886d2d0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/886d2d088123cf70d7839ca32c6031f2bb377a9a))
+
 ## [1.6.5](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.4...v1.6.5) (2023-07-20)
 
 
