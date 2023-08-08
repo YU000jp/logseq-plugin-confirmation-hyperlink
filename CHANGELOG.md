@@ -1,3 +1,10 @@
+## [1.6.7](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.6...v1.6.7) (2023-08-08)
+
+
+### Bug Fixes
+
+* **bug:** not work first only ([e4bb5d3](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/e4bb5d36dd2202f049f11bf0f82b58b4c3a3c5cb))
+
 ## [1.6.6](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.5...v1.6.6) (2023-08-04)
 
 
