@@ -90,11 +90,10 @@ const main = () => {
     });
 
     logseq.onSettingsChanged((newSet: LSPluginBaseInfo['settings'], oldSet: LSPluginBaseInfo['settings']) => {
-        if (oldSet.linkIcon !== true && newSet.linkIcon === true) {
+        if (oldSet.linkIcon !== true && newSet.linkIcon === true)
             setLinkIcon();
-        } else if (oldSet.linkIcon !== false && newSet.linkIcon === false) {
+        else if (oldSet.linkIcon !== false && newSet.linkIcon === false)
             removeProvideStyle("linkIcon");
-        }
     });
 
 };/* end_main */
@@ -104,12 +103,11 @@ const main = () => {
 const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
     if (demoGraph === true
         || processing === true
-        || txMeta?.outlinerOp !== "saveBlock"
-        || setURL !== ""
+        || (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null) !== null
     ) return; // 処理中の場合はリターンして重複を避ける
-    processing = true; // ロックをかける
     const targetBlock = blocks.find((block) => block.page && !block.name && block.content && block.content !== "") as BlockEntity | null;
     if (!targetBlock) return;
+    processing = true; // ロックをかける
     await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format);
     processing = false;
 });
@@ -156,7 +154,6 @@ async function getTitleFromURL(url: string): Promise<string> {
     } catch (e) {
         console.error(e);
     }
-
     return '';
 }
 
@@ -194,29 +191,27 @@ function isWrappedIn(text, url) {
 
 const getFormatSettings = (format: string) => FORMAT_SETTINGS[format];
 
-let processingParse = false;
 const parseBlockForLink = async (uuid: string, content: string, format: string) => {
     if (!uuid || !content) return;
     const urls = content.match(DEFAULT_REGEX.line) as RegExpMatchArray | null;
     if (!urls) return;
+    if(parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null === null) setURL = "";
 
     const formatSettings = await getFormatSettings(format) as { formatBeginning: string; applyFormat: (title: any, url: any) => string; }
     if (!formatSettings) return;
     let offset = 0;
-    if (processingParse === true) return;
-    processingParse = true;
     for (const url of urls) {
         const urlIndex = content.indexOf(url, offset) as number;
         if (isAlreadyFormatted(content, urlIndex, formatSettings.formatBeginning) || isImage(url) || isWrappedIn(content, url)) continue;
 
-        if (setURL === url && parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement) return;
+        if (setURL === url) return;
         setURL = url;
-        const blockElement = parent.document.getElementsByClassName(uuid) as HTMLCollectionOf<HTMLElement>;
+        const blockElement = parent.document.getElementsByClassName(uuid)[0] as HTMLElement;
         let top = "";
         let left = "";
         let right = "";
         //エレメントから位置を取得する
-        const rect = (blockElement[0]) ? blockElement[0]!.getBoundingClientRect() as DOMRect | undefined : null;
+        const rect = (blockElement) ? blockElement.getBoundingClientRect() as DOMRect | undefined : null;
 
         if (blockElement && rect) {
             const offsetTop = Number(rect.top - 142);
@@ -241,7 +236,7 @@ const parseBlockForLink = async (uuid: string, content: string, format: string) 
             showDialog(url, uuid, left, top, content, formatSettings);
         }
     }
-    processingParse = false;
+    setURL = "";
 }
 
 function showDialog(url: string, uuid: string, left: string, top: string, text: string, formatSettings: { formatBeginning: string; applyFormat: (title: any, url: any) => string; }) {
