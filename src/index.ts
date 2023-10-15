@@ -29,28 +29,36 @@ const main = () => {
     //CSS text-overflow
     //https://developer.mozilla.org/ja/docs/Web/CSS/text-overflow
     logseq.provideStyle(`
-        div#hyperlink p {
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
+    body>div[data-ref="confirmation-done-task"] {
+        & div#hyperlink {
+            & p {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+
+            & input {
+                background: var(--ls-primary-background-color);
+                color: var(--ls-primary-text-color);
+                boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
+            }
+
+            & button {
+                border: 1px solid var(--ls-secondary-background-color);
+                boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
+                text-decoration: underline;
+
+                &#hyperlinkButton {
+                    font-size: 1.8em;
+                }
+
+                &:hover {
+                    background: var(--ls-secondary-background-color);
+                    color: var(--ls-secondary-text-color);
+                }
+            }
         }
-        div#hyperlink input {
-            background: var(--ls-primary-background-color);
-            color: var(--ls-primary-text-color);
-            boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
-        }
-        div#hyperlink button {
-            border: 1px solid var(--ls-secondary-background-color);
-            boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
-            text-decoration: underline;
-        }
-        div#hyperlink button#hyperlinkButton {
-            font-size: 1.8em;
-        }
-        div#hyperlink button:hover {
-            background: var(--ls-secondary-background-color);
-            color: var(--ls-secondary-text-color);
-        }
+    }
     `);
 
     if (logseq.settings!.linkIcon === true) setLinkIcon();
@@ -255,13 +263,15 @@ function showDialog(url: string, uuid: string, left: string, top: string, text: 
                     <p>URL: (<a href="${url}" target="_blank" title="URL">${url}</a>)</p>
                     </div>
                     <style>
-                    div.light-theme span#dot-${uuid}{
-                        outline: 2px solid var(--ls-link-ref-text-color);
+                    body>div#root>div {
+                        &.light-theme>main>div span#dot-${uuid}{
+                            outline: 2px solid var(--ls-link-ref-text-color);
+                        }
+                        &.dark-theme>main>div span#dot-${uuid}{
+                            outline: 2px solid aliceblue;
+                        }
                     }
-                    div.dark-theme span#dot-${uuid}{
-                        outline: 2px solid aliceblue;
-                    }
-                    div#hyperlink button#hyperlinkButton {
+                    body>div[data-ref="confirmation-done-task"] div#hyperlink button#hyperlinkButton {
                         display: none;
                     }
                     </style>
@@ -342,11 +352,13 @@ function showDialogForPDF(url: string, uuid: string, left: string, right: string
                     <p>URL: (<a href="${url}" target="_blank" title="URL">${url}</a>)</p>
                     </div>
                     <style>
-                    div.light-theme span#dot-${uuid}{
-                        outline: 2px solid var(--ls-link-ref-text-color);
-                    }
-                    div.dark-theme span#dot-${uuid}{
-                        outline: 2px solid aliceblue;
+                    body>div#root>div {
+                        &.light-theme>main>div span#dot-${uuid}{
+                            outline: 2px solid var(--ls-link-ref-text-color);
+                        }
+                        &.dark-theme>main>div span#dot-${uuid}{
+                            outline: 2px solid aliceblue;
+                        }
                     }
                     </style>
                     `,
