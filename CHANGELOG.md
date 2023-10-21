@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.8...v1.7.0) (2023-10-21)
+
+
+### Features
+
+* **Add:** "Only when called from the bulleted context menu" [#29](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/issues/29) ([afedc73](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/afedc73b3f6a7549f35ef623a83a491e2e9755da))
+
 ## [1.6.8](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.7...v1.6.8) (2023-10-21)
 
 
