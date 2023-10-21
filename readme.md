@@ -31,9 +31,7 @@
 
 ### Plugin Settings
 
-- Hyperlink icon 🔗: boolean
-   - `true`
-   - `false` default
+- Nothing
  
 ### Option
 

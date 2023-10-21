@@ -1,3 +1,10 @@
 {
-
+    "Create Hyperlink" : "ハイパーリンク作成",
+    "Title" : "タイトル",
+    "Get the title" : "タイトルを取得",
+    "Error: Block not found" : "エラー: ブロックが見つかりません",
+    "Edit the title of online PDF" : "オンラインPDFのタイトルを編集",
+    "Submit" : "送信",
+    "The file was saved into assets." : "ファイルはアセットに保存されました。",
+    "A file with the same name was found in the asset." : "同じ名前のファイルがアセットに見つかりました。"
 }
