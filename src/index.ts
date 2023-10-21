@@ -1,11 +1,14 @@
 import '@logseq/libs' //https://plugins-doc.logseq.com/
-import { BlockEntity, LSPluginBaseInfo, SettingSchemaDesc } from '@logseq/libs/dist/LSPlugin.user'
+import { BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage'
 import { setup as l10nSetup, t } from "logseq-l10n" //https://github.com/sethyuan/logseq-l10n
 import ja from "./translations/ja.json"
-import { timestamp } from './lib'
-import { includeTitle } from './lib'
-import { checkDemoGraph } from './lib'
+import { timestamp, includeTitle, checkDemoGraph } from './lib'
+import { getTitleFromURL } from './URL'
+import { convertUrlToMarkdownLink } from './URL'
+import { settingsTemplate } from './settings'
+import { DEFAULT_REGEX, getFormatSettings, isAlreadyFormatted, isImage, isWrappedIn, isPDF } from './URL'
+
 const key = "confirmHyperlink"
 let demoGraph: boolean = false
 let onBlockChangedToggle: boolean = false
@@ -13,16 +16,11 @@ let processing: Boolean = false // ロック用フラグ
 let setURL = ""
 
 /* main */
-const main = () => {
-    (async () => {
-        try {
-            await l10nSetup({ builtinTranslations: { ja } })
-        } finally {
-            /* user settings */
-            logseq.useSettingsSchema(settingsTemplate)
-            if (!logseq.settings) setTimeout(() => logseq.showSettingsUI(), 300)
-        }
-    })()
+const main = async () => {
+    await l10nSetup({ builtinTranslations: { ja } })
+    /* user settings */
+    logseq.useSettingsSchema(settingsTemplate())
+    if (!logseq.settings) setTimeout(() => logseq.showSettingsUI(), 300)
 
     //CSS text-overflow
     //https://developer.mozilla.org/ja/docs/Web/CSS/text-overflow
@@ -80,7 +78,7 @@ const main = () => {
         onBlockChangedToggle = true
     }
 
-    logseq.Editor.registerBlockContextMenuItem("Create Hyperlink", async ({ uuid }) => {
+    logseq.Editor.registerBlockContextMenuItem(t("Create Hyperlink"), async ({ uuid }) => {
         if (processing === true) return
         const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null
         if (block) {
@@ -95,8 +93,9 @@ const main = () => {
 
 
 
-const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
-    if (demoGraph === true
+const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks }) => {
+    if (logseq.settings!.bulletMenuOnly === true
+        || demoGraph === true
         || processing === true
         || (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null) !== null
     ) return // 処理中の場合はリターンして重複を避ける
@@ -108,131 +107,7 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
 })
 
 
-//Credit
-//https://github.com/0x7b1/logseq-plugin-automatic-url-title
-
-const DEFAULT_REGEX = {
-    wrappedInApostrophe: /(`+)(.*?)\1(?=[^`]*?(https?:\/\/(?:www\.|(?!www))\w[\w-]+\.\S{2,}|www\.\w[\w-]+\.\S{2,}|https?:\/\/(?:www\.|(?!www))\w+\.\S{2,}|www\.\w+\.\S{2,}))[^\`]*?\1/gis,
-    wrappedInHTML: /@@html:\s*(.*?)\s*?(https?:\/\/(?:www\.|(?!www))\w[\w-]+\.\S{2,}|www\.\w[\w-]+\.\S{2,}|https?:\/\/(?:www\.|(?!www))\w+\.\S{2,}|www\.\w+\.\S{2,})\s*(.*?)\s*@@/gis,
-    wrappedInCommand: /(\{\{([a-zA-Z]+)\s*?(https?:\/\/(?:www\.|(?!www))\w[\w-]+\.\S{2,}|www\.\w[\w-]+\.\S{2,}|https?:\/\/(?:www\.|(?!www))\w+\.\S{2,}|www\.\w+\.\S{2,})\s*\}\})/gis,
-    wrappedInHiccup: /\[:\s*(.*?)\s*?(https?:\/\/(?:www\.|(?!www))\w[\w-]+\.\S{2,}|www\.\w[\w-]+\.\S{2,}|https?:\/\/(?:www\.|(?!www))\w+\.\S{2,}|www\.\w+\.\S{2,})\s*(.*?)\s*\]/gis,
-    htmlTitleTag: /<title(\s[^>]+)*>([^<]*)<\/title>/,
-    line: /(https?:\/\/(?:www\.|\b)(\w[\w-]+\w\.[^\s　]{2,}|www\.\w[\w-]+\w\.[^\s　]{2,}|\w+\.[^\s　]{2,}|www\.\w+\.[^\s　]{2,}))(?!\))/gi,
-    imageExtension: /\.(gif|jpe?g|tiff?|png|webp|bmp|tga|psd|ai)$/i,
-    pdfExtension: /\.(pdf)$/i,
-}
-
-const FORMAT_SETTINGS = {
-    markdown: {
-        formatBeginning: '](',
-        applyFormat: (title, url) => `[${title}](${url})`,
-    },
-    org: {
-        formatBeginning: '][',
-        applyFormat: (title, url) => `[[${url}][${title}]]`,
-    },
-}
-
-
-
-const getTitleFromURL = async (url: string): Promise<string> => {
-    try {
-        const res = await fetch(url) as Response
-        if (!res.ok) return ''
-        const buffer = await res.arrayBuffer() as ArrayBuffer
-        const encoding = getEncodingFromHTML(buffer)
-        const decodedHtml = new TextDecoder(encoding).decode(buffer)//文字化け対策
-        let matches = decodedHtml.match(DEFAULT_REGEX.htmlTitleTag)
-        if (matches !== null && matches.length > 1 && matches[2] !== null) return matches[2].trim()
-    } catch (e) {
-        console.error(e)
-    }
-    return ''
-}
-
-const getEncodingFromHTML = (buffer: ArrayBuffer): string => {
-    const uint8Array = new Uint8Array(buffer)
-    const dom = new DOMParser().parseFromString(new TextDecoder().decode(uint8Array), 'text/html')
-    return (
-        dom.querySelector('meta[charset]')?.getAttribute?.('charset') ??
-        (dom.querySelector('meta[http-equiv="content-type"]') as HTMLMetaElement)?.content?.match?.(/charset=([^;]+)/)?.[1] ??
-        'UTF-8'
-    )
-}
-
-
-const convertUrlToMarkdownLink = (title: string, url, text, applyFormat) => {
-    if (!title) return
-    return text.replace(url, applyFormat(includeTitle(title), url))
-}
-const isImage = (url: string) => (new RegExp(DEFAULT_REGEX.imageExtension)).test(url)
-const isPDF = (url: string) => (new RegExp(DEFAULT_REGEX.pdfExtension)).test(url)
-const isAlreadyFormatted = (text: string, urlIndex: number, formatBeginning: string) => text.slice(urlIndex - 2, urlIndex) === formatBeginning
-
-const isWrappedIn = (text, url) => {
-    // "@@html: "URLを含む何らかの文字"@@"にマッチする
-    //https://github.com/YU000jp/logseq-plugin-some-menu-extender/issues/1
-    // `URLを含む何らかの文字`にマッチする ``も対応
-    //https://github.com/YU000jp/logseq-plugin-some-menu-extender/issues/3
-    // [: "URL"]のような形式にマッチする
-    //https://github.com/YU000jp/logseq-plugin-some-menu-extender/issues/8
-    const wrappedLinks = text.match(DEFAULT_REGEX.wrappedInCommand) || text.match(DEFAULT_REGEX.wrappedInHTML) || text.match(DEFAULT_REGEX.wrappedInApostrophe) || text.match(DEFAULT_REGEX.wrappedInHiccup)
-    if (!wrappedLinks) return false
-    return wrappedLinks.some(command => command.includes(url))
-}
-
-
-const getFormatSettings = (format: string) => FORMAT_SETTINGS[format]
-
-const parseBlockForLink = async (uuid: string, content: string, format: string) => {
-    if (!uuid || !content) return
-    const urls = content.match(DEFAULT_REGEX.line) as RegExpMatchArray | null
-    if (!urls) return
-    if (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null === null) setURL = ""
-
-    const formatSettings = await getFormatSettings(format) as { formatBeginning: string; applyFormat: (title: any, url: any) => string }
-    if (!formatSettings) return
-    let offset = 0
-    for (const url of urls) {
-        const urlIndex = content.indexOf(url, offset) as number
-        if (isAlreadyFormatted(content, urlIndex, formatSettings.formatBeginning) || isImage(url) || isWrappedIn(content, url)) continue
-
-        if (setURL === url) return
-        setURL = url
-        const blockElement = parent.document.getElementsByClassName(uuid)[0] as HTMLElement
-        let top = ""
-        let left = ""
-        let right = ""
-        //エレメントから位置を取得する
-        const rect = (blockElement) ? blockElement.getBoundingClientRect() as DOMRect | undefined : null
-
-        if (blockElement && rect) {
-            const offsetTop = Number(rect.top - 142)
-            top = (offsetTop > 0) ?
-                Number(offsetTop) + "px"
-                : Number(rect.top + 40) + "px"
-
-            left = String(Number(rect.left - 10)) + "px"
-            const offsetRight = Number(rect.right - 350)
-            right = (offsetRight > 0) ?
-                String(rect.right) + "px"
-                : "1em"
-            right = ""
-        } else {
-            top = "2em"
-            right = "1em"
-        }
-
-        if (isPDF(url)) {
-            showDialogForPDF(url, uuid, left, right, top)
-        } else {
-            showDialog(url, uuid, left, top, content, formatSettings)
-        }
-    }
-    setURL = ""
-}
-
-const showDialog = (url: string, uuid: string, left: string, top: string, text: string, formatSettings: { formatBeginning: string; applyFormat: (title: any, url: any) => string }) => {
+export const showDialog = (url: string, uuid: string, left: string, top: string, text: string, formatSettings: { formatBeginning: string; applyFormat: (title: any, url: any) => string }) => {
     logseq.provideUI({
         attrs: {
             title: t("Create Hyperlink"),
@@ -248,16 +123,18 @@ const showDialog = (url: string, uuid: string, left: string, top: string, text: 
                     <p>URL: <small>(<a href="${url}" target="_blank" title="URL">${url}</a>)</small></p>
                     </div>
                     <style>
-                    body>div#root>div {
-                        &.light-theme>main>div span#dot-${uuid}{
-                            outline: 2px solid var(--ls-link-ref-text-color);
+                    body>div {
+                        &#root>div {
+                            &.light-theme>main>div span#dot-${uuid}{
+                                outline: 2px solid var(--ls-link-ref-text-color);
+                            }
+                            &.dark-theme>main>div span#dot-${uuid}{
+                                outline: 2px solid aliceblue;
+                            }
                         }
-                        &.dark-theme>main>div span#dot-${uuid}{
-                            outline: 2px solid aliceblue;
+                        &[data-ref="confirmation-done-task"] div#hyperlink button#hyperlinkButton {
+                            display: none;
                         }
-                    }
-                    body>div[data-ref="confirmation-done-task"] div#hyperlink button#hyperlinkButton {
-                        display: none;
                     }
                     </style>
                     `,
@@ -322,7 +199,7 @@ const showDialog = (url: string, uuid: string, left: string, top: string, text: 
     }, 100)
 }
 
-const showDialogForPDF = (url: string, uuid: string, left: string, right: string, top: string) => {
+export const showDialogForPDF = (url: string, uuid: string, left: string, right: string, top: string) => {
     logseq.provideUI({
         attrs: {
             title: t("Edit the title of online PDF"),
@@ -422,16 +299,53 @@ const convertOnlinePDF = async (url: string, uuid: string, inputTitle: string) =
         })
 }
 
-/* user setting */
-// https://logseq.github.io/plugins/types/SettingSchemaDesc.html
-const settingsTemplate: SettingSchemaDesc[] = [
-    {
-        key: "heading",
-        type: "heading",
-        title: "Confirmation Hyperlink",
-        description: "Nothing",
-        default: "",
-    },
-]
+export const parseBlockForLink = async (uuid: string, content: string, format: string) => {
+    if (!uuid || !content) return
+    const urls = content.match(DEFAULT_REGEX.line) as RegExpMatchArray | null
+    if (!urls) return
+    if (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null === null) setURL = ""
+
+    const formatSettings = await getFormatSettings(format) as { formatBeginning: string; applyFormat: (title: any, url: any) => string }
+    if (!formatSettings) return
+    let offset = 0
+    for (const url of urls) {
+        const urlIndex = content.indexOf(url, offset) as number
+        if (isAlreadyFormatted(content, urlIndex, formatSettings.formatBeginning) || isImage(url) || isWrappedIn(content, url)) continue
+
+        if (setURL === url) return
+        setURL = url
+        const blockElement = parent.document.getElementsByClassName(uuid)[0] as HTMLElement
+        let top = ""
+        let left = ""
+        let right = ""
+        //エレメントから位置を取得する
+        const rect = (blockElement) ? blockElement.getBoundingClientRect() as DOMRect | undefined : null
+
+        if (blockElement && rect) {
+            const offsetTop = Number(rect.top - 142)
+            top = (offsetTop > 0) ?
+                Number(offsetTop) + "px"
+                : Number(rect.top + 40) + "px"
+
+            left = String(Number(rect.left - 10)) + "px"
+            const offsetRight = Number(rect.right - 350)
+            right = (offsetRight > 0) ?
+                String(rect.right) + "px"
+                : "1em"
+            right = ""
+        } else {
+            top = "2em"
+            right = "1em"
+        }
+
+        if (logseq.settings!.onlinePDF === true && isPDF(url)) {
+            showDialogForPDF(url, uuid, left, right, top)
+        } else {
+            showDialog(url, uuid, left, top, content, formatSettings)
+        }
+    }
+    setURL = ""
+}
+
 
 logseq.ready(main).catch(console.error)

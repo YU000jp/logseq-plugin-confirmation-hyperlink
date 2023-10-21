@@ -6,5 +6,7 @@
     "Edit the title of online PDF" : "オンラインPDFのタイトルを編集",
     "Submit" : "送信",
     "The file was saved into assets." : "ファイルはアセットに保存されました。",
-    "A file with the same name was found in the asset." : "同じ名前のファイルがアセットに見つかりました。"
+    "A file with the same name was found in the asset." : "同じ名前のファイルがアセットに見つかりました。",
+    "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted." : "箇条書きのコンテキストメニューから呼び出された場合のみにする。URLが貼り付けられた場合は何もしません。",
+    "Download the online PDF file and add to assets" : "オンラインPDFをダウンロードして、アセットに追加"
 }
