@@ -1,3 +1,10 @@
+## [1.6.8](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.7...v1.6.8) (2023-10-21)
+
+
+### Bug Fixes
+
+* **refactor:** Remove "Use hyperlink icon" from plugin settings ([dbf77c6](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/dbf77c60e13e0f8aa428514309bc75c2fb592190))
+
 ## [1.6.7](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.6...v1.6.7) (2023-08-08)
 
 
