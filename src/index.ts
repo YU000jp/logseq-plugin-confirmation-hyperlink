@@ -1,6 +1,6 @@
-import '@logseq/libs'; //https://plugins-doc.logseq.com/
+import '@logseq/libs' //https://plugins-doc.logseq.com/
 import { BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
-import { setup as l10nSetup, t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
+import { setup as l10nSetup, t } from "logseq-l10n" //https://github.com/sethyuan/logseq-l10n
 import { DEFAULT_REGEX, convertUrlToMarkdownLink, getFormatSettings, getTitleFromURL, isAlreadyFormatted, isImage, isPDF, isWrappedIn } from './URL'
 import { convertOnlinePDF } from './convertOnlinePDF'
 import { checkDemoGraph, includeTitle } from './lib'
@@ -29,6 +29,7 @@ const main = async () => {
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
+                margin: unset;
             }
 
             & input {
@@ -38,6 +39,9 @@ const main = async () => {
             }
 
             & button {
+                &#hyperlinkButtonGetTitle {
+                    font-size: .9em;
+                }
                 &#hyperlinkButton {
                     font-size: 2em;
                     font-family: "tabler-icons";
@@ -91,16 +95,28 @@ const main = async () => {
 
 
 
-const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks }) => {
-    if (logseq.settings!.bulletMenuOnly === true
+const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
+
+    if (//アウトライナー操作のみ
+        !(txMeta?.outlinerOp)
+        // バレットメニューのみの設定項目がtrueの場合
+        || logseq.settings!.bulletMenuOnly === true
+        //デモグラフの場合は処理しない
         || demoGraph === true
+        // 重複を避ける
         || processing === true
+        //ポップアップが表示されている場合は処理しない
         || (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null) !== null
-    ) return // 処理中の場合はリターンして重複を避ける
-    const targetBlock = blocks.find((block) => block.page && !block.name && block.content && block.content !== "") as BlockEntity | null
+    ) return
+    // ターゲットブロックを取得
+    const targetBlock = blocks.find((block) => block.page && block.content && block.content !== "") as BlockEntity | null
     if (!targetBlock) return
-    processing = true // ロックをかける
+
+    // ロックをかける
+    processing = true
+    // リンクを作成
     await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format)
+    // ロックを解除する
     processing = false
 })
 
@@ -108,17 +124,19 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks }) => {
 export const showDialog = (url: string, uuid: string, left: string, top: string, text: string, formatSettings: { formatBeginning: string; applyFormat: (title: any, url: any) => string }) => {
     logseq.provideUI({
         attrs: {
-            title: t("Create Hyperlink"),
+            title: url,
         },
         key,
+        close: "outside",
         replace: true,
         reset: true,
         template: `
                     <div id="hyperlink">
-                    <p><small>${t("Title")}</small><input id="hyperlinkTitle" type="text" style="width:450px" disabled="true"/>
-                    <button id="hyperlinkButtonGetTitle" title="${("Get the title")}"></button>
-                    <button id="hyperlinkButton" title="${t("Submit")}">&#xed00;</button></p>
-                    <p>URL: <small>(<a href="${url}" target="_blank" title="URL">${url}</a>)</small></p>
+                        <p>
+                            <input id="hyperlinkTitle" type="text" style="width:450px" disabled="true" title="${t("Title")}" placeholder="${t("Get the title")}"/>
+                            <button id="hyperlinkButton" title="${t("Submit")}">&#xed00;</button>
+                        </p>
+                        <button id="hyperlinkButtonGetTitle"></button>
                     </div>
                     <style>
                     body>div {
@@ -137,11 +155,9 @@ export const showDialog = (url: string, uuid: string, left: string, top: string,
                     </style>
                     `,
         style: {
-            width: "580px",
-            height: "125px",
+            width: "unset",
+            maxWidth: "550px",
             left,
-            right: "unset",
-            bottom: "unset",
             top,
             paddingLeft: "0.4em",
             backgroundColor: 'var(--ls-primary-background-color)',
@@ -200,16 +216,18 @@ export const showDialog = (url: string, uuid: string, left: string, top: string,
 export const showDialogForPDF = (url: string, uuid: string, left: string, right: string, top: string) => {
     logseq.provideUI({
         attrs: {
-            title: t("Edit the title of online PDF"),
+            title: url,
         },
         key,
+        close: "outside",
         reset: true,
         replace: true,
         template: `
                     <div id="hyperlink">
-                    <p><small>${t("Title")}</small><input id="hyperlinkTitle" type="text" style="width:450px" value="${url.split("/").pop() as string}"/>
-                    <button id="hyperlinkButton" title="${t("Submit")}">&#xed00;</button></p>
-                    <p>URL: <small>(<a href="${url}" target="_blank" title="URL">${url}</a>)</small></p>
+                        <p>
+                            <input id="hyperlinkTitle" type="text" style="width:450px" value="${url.split("/").pop() as string}" title="${t("Edit the title of online PDF")}" placeholder="${t("Edit the title of online PDF")}"/>
+                            <button id="hyperlinkButton" title="${t("Submit")}">&#xed00;</button>
+                        </p>
                     </div>
                     <style>
                     body>div#root>div {
@@ -223,11 +241,10 @@ export const showDialogForPDF = (url: string, uuid: string, left: string, right:
                     </style>
                     `,
         style: {
-            width: "580px",
-            height: "125px",
+            width: "unset",
+            maxWidth: "550px",
             left: (left !== "") ? left : "unset",
             right: (right !== "") ? right : "unset",
-            bottom: "unset",
             top,
             paddingLeft: "0.4em",
             backgroundColor: 'var(--ls-primary-background-color)',
@@ -283,19 +300,19 @@ export const parseBlockForLink = async (uuid: string, content: string, format: s
         const rect = (blockElement) ? blockElement.getBoundingClientRect() as DOMRect | undefined : null
 
         if (blockElement && rect) {
-            const offsetTop = Number(rect.top - 142)
+            const offsetTop = Number(rect.top - 100)
             top = (offsetTop > 0) ?
                 Number(offsetTop) + "px"
-                : Number(rect.top + 40) + "px"
+                : Number(rect.top) + "px"
 
-            left = String(Number(rect.left - 10)) + "px"
-            const offsetRight = Number(rect.right - 350)
+            left = String(rect.left) + "px"
+            const offsetRight = Number(rect.right - 300)
             right = (offsetRight > 0) ?
                 String(rect.right) + "px"
                 : "1em"
             right = ""
         } else {
-            top = ".8em"
+            top = ".3em"
             right = "1em"
         }
 
