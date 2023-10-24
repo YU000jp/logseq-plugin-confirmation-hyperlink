@@ -111,7 +111,9 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
     // ターゲットブロックを取得
     const targetBlock = blocks.find((block) => block.page && block.content && block.content !== "") as BlockEntity | null
     if (!targetBlock) return
-
+    // カーソル位置のブロックを取得
+    const currentBlock = await logseq.Editor.getCurrentBlock() as BlockEntity | null
+    if (!currentBlock || targetBlock.uuid !== currentBlock.uuid) return
     // ロックをかける
     processing = true
     // リンクを作成
