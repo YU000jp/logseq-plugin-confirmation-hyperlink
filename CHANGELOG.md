@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.1...v1.7.2) (2023-10-24)
+
+
+### Bug Fixes
+
+* **bug:** [#31](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/issues/31) A popup appear when another plugin run and process URLs. ([3650b48](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/3650b4859a429fe6c96295d84bc7db92be163a9a))
+
 ## [1.7.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.0...v1.7.1) (2023-10-24)
 
 
