@@ -29,7 +29,7 @@ export const DEFAULT_REGEX = {
     line: /(https?:\/\/(?:www\.|\b)(\w[\w-]+\w\.[^\s　]{2,}|www\.\w[\w-]+\w\.[^\s　]{2,}|\w+\.[^\s　]{2,}|www\.\w+\.[^\s　]{2,}))(?!\))/gi,
 
     // html以外の拡張子のファイルを検知するための拡張子を指定する
-    imageExtension: /\.(gif|jpe?g|tiff?|png|webp|bmp|tga|psd|ai)$/i,
+    imageExtension: /\.(gif|jpg|jpeg|tif|tiff|png|webp|bmp|ico|svg|eps|raw|mp4|avi|wmv|flv|mov|mkv|webm|mpg|mpeg|3gp|3g2)$/i,
 
     // PDFを検知するための拡張子を指定する
     pdfExtension: /\.(pdf)$/i,
