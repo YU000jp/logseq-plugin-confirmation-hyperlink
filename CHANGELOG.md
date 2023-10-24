@@ -1,3 +1,11 @@
+## [1.7.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.0...v1.7.1) (2023-10-24)
+
+
+### Bug Fixes
+
+* **bug:** Add extensions that should not be linked ([ad1577a](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/ad1577aca1b2b476a100c361588b658a7ecc6bf5))
+* **redesign:** compact popup / fix [#30](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/issues/30) ([a4b42a7](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/a4b42a7a85f4d12894de65478e4c81bc72910107))
+
 # [1.7.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.6.8...v1.7.0) (2023-10-21)
 
 
