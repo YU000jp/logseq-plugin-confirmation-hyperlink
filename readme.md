@@ -16,7 +16,7 @@
 - Paste a URL into a block somewhere. A dialog will then appear. Edit the title now.
   > Logseq usually leaves it as a URL and does not retrieve the title.
 - If it is an online PDF, download it from that URL and import it into the asset.
-  > This is especially useful for online PDF files that are updated with the same URL.
+  > This feature is not available as standard. This is especially useful for online PDF files that are updated with the same URL.
 
    ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/e4ca591a-b6bb-4077-bd5d-4e42b184cb53)
 
