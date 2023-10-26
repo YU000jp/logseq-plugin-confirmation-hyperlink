@@ -97,10 +97,8 @@ const main = async () => {
 
 const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
 
-    if (//ブロック保存時以外は処理しない
-        txMeta?.outlinerOp !== "saveBlock"
-        //ユーザー操作ではない場合 (transactは取引の意味)
-        || txMeta["transact?"] === false
+    if (//アウトライナー操作のみ
+        !(txMeta?.outlinerOp)
         // バレットメニューのみの設定項目がtrueの場合
         || logseq.settings!.bulletMenuOnly === true
         //デモグラフの場合は処理しない
@@ -121,7 +119,7 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
     // リンクを作成
     await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format)
     // ロックを解除する
-    setTimeout(() => processing = false, 100)
+    processing = false
 })
 
 
