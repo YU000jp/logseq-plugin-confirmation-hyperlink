@@ -8,6 +8,7 @@ import { settingsTemplate } from './settings'
 import ja from "./translations/ja.json"
 
 const key = "confirmHyperlink"
+let demoGraph: boolean = false
 let onBlockChangedToggle: boolean = false
 let processing: Boolean = false // ロック用フラグ
 let setURL = ""
@@ -58,7 +59,8 @@ const main = async () => {
 
     //ページ読み込み時
     logseq.App.onPageHeadActionsSlotted(async () => {
-        if (onBlockChangedToggle === false) {
+        demoGraph = await checkDemoGraph() as boolean
+        if (demoGraph === true && onBlockChangedToggle === false) {
             onBlockChanged()
             onBlockChangedToggle = true
         }
@@ -66,11 +68,17 @@ const main = async () => {
 
     //グラフ変更時
     logseq.App.onCurrentGraphChanged(async () => {
-        if (onBlockChangedToggle === false) {
+        demoGraph = await checkDemoGraph() as boolean
+        if (demoGraph === true && onBlockChangedToggle === false) {
             onBlockChanged()
             onBlockChangedToggle = true
         }
     })
+
+    if (demoGraph === false) {
+        onBlockChanged()
+        onBlockChangedToggle = true
+    }
 
     logseq.Editor.registerBlockContextMenuItem(t("Create Hyperlink"), async ({ uuid }) => {
         if (processing === true) return
@@ -95,6 +103,8 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
         || txMeta["transact?"] === false
         // バレットメニューのみの設定項目がtrueの場合
         || logseq.settings!.bulletMenuOnly === true
+        //デモグラフの場合は処理しない
+        || demoGraph === true
         // 重複を避ける
         || processing === true
         //ポップアップが表示されている場合は処理しない
