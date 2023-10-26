@@ -119,7 +119,7 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
     // リンクを作成
     await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format)
     // ロックを解除する
-    processing = false
+    setTimeout(() =>   processing = false, 100);
 })
 
 
