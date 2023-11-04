@@ -33,7 +33,7 @@ const main = async () => {
             }
 
             & input {
-                background: var(--ls-primary-background-color);
+                background-color: var(--ls-primary-background-color);
                 color: var(--ls-primary-text-color);
                 boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
             }
@@ -49,7 +49,7 @@ const main = async () => {
                 }
 
                 &:hover {
-                    background: var(--ls-secondary-background-color);
+                    background-color: var(--ls-secondary-background-color);
                 }
             }
         }
