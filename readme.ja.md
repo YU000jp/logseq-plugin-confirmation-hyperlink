@@ -1,4 +1,4 @@
-# Logseq Plugin: *Confirmation Hyperlink (Paste URL)* 🔗
+# Logseq Plugin: *URL Hyperlink* 🔗
 
 [English](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink) | [日本語](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/blob/main/readme.ja.md)
 
@@ -26,8 +26,6 @@
 
 Logseq マーケットプレイスからインストール
   - 右上のツールバーで [`---`] をクリックして [`プラグイン`] を開きます。`URL`を検索フィールドに入力し、検索結果から選択してインストールします。
-
-   ![画像](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/ed931a9d-5c67-4a4a-9286-7069b2680d6c)
 
 ### 使用方法
 
@@ -58,10 +56,10 @@ Logseq マーケットプレイスからインストール
 
 ## 先行技術とクレジット
 
-Logseq プラグイン > [0x7b1/ automatic url title](https://github.com/0x7b1/logseq-plugin-automatic-url-title)
+Logseq プラグイン > [@0x7b1/ automatic url title](https://github.com/0x7b1/logseq-plugin-automatic-url-title)
 
 アイコン > [icooon-mono.com](https://icooon-mono.com/11386-%e3%82%a4%e3%83%b3%e3%82%bf%e3%83%bc%e3%83%8d%e3%83%83%e3%83%88%e3%81%ae%e3%82%a2%e3%82%a4%e3%82%b33/)
 
-著者 > [YU000jp (GitHub)](https://github.com/YU000jp)
+製作者 > [@YU000jp](https://github.com/YU000jp)
 
 <a href="https://www.buymeacoffee.com/yu000japan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-violet.png" alt="🍌コーヒーを買ってください" style="height: 42px;width: 152px" ></a>
