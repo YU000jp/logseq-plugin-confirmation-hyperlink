@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.2...v1.7.3) (2023-11-12)
+
+
+### Performance Improvements
+
+* **translations:** full Logseq language ([8d0ef38](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/8d0ef38171a81cd9b6a493208ec8d5eceb24aa47))
+
 ## [1.7.2](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.1...v1.7.2) (2023-10-24)
 
 
