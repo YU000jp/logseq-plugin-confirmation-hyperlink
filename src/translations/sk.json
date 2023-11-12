@@ -1,0 +1,12 @@
+{
+  "Create Hyperlink": "Vytvorenie hypertextového prepojenia",
+  "Title": "titul",
+  "Get the title": "Získať titul",
+  "Error: Block not found": "Chyba: Blokovanie sa nenašlo",
+  "Edit the title of online PDF": "Úprava názvu online PDF",
+  "Submit": "prenos",
+  "The file was saved into assets.": "Súbor sa uložil do majetku.",
+  "A file with the same name was found in the asset.": "V diele sa našiel súbor s rovnakým názvom.",
+  "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.": "Iba pri vyvolaní z kontextovej ponuky zoznamu s odrážkami. Ak je adresa URL prilepená, nevykonajte nič.",
+  "Download the online PDF file and add to assets": "Stiahnite si online súbor PDF a pridajte ho do svojich zdrojov"
+}

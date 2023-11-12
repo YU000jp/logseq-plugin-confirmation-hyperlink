@@ -1,0 +1,12 @@
+{
+  "Create Hyperlink": "하이퍼링크 생성",
+  "Title": "타이틀",
+  "Get the title": "제목 가져오기",
+  "Error: Block not found": "오류: 블록을 찾을 수 없음",
+  "Edit the title of online PDF": "온라인 PDF의 제목 편집",
+  "Submit": "전파",
+  "The file was saved into assets.": "파일이 자산에 저장되었습니다.",
+  "A file with the same name was found in the asset.": "자산에서 동일한 이름의 파일이 발견되었습니다.",
+  "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.": "글머리 기호 목록의 상황에 맞는 메뉴에서 호출되는 경우에만 가능합니다. URL을 붙여넣은 경우 아무 작업도 수행하지 않습니다.",
+  "Download the online PDF file and add to assets": "온라인 PDF를 다운로드하여 자산에 추가"
+}

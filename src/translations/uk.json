@@ -1,0 +1,12 @@
+{
+  "Create Hyperlink": "Створення гіперпосилань",
+  "Title": "назва",
+  "Get the title": "Отримати звання",
+  "Error: Block not found": "Помилка: Блок не знайдено",
+  "Edit the title of online PDF": "Редагування заголовка PDF-файлу в Інтернеті",
+  "Submit": "Передачі",
+  "The file was saved into assets.": "Файл було збережено в об'єкті.",
+  "A file with the same name was found in the asset.": "В активі було знайдено файл з такою ж назвою.",
+  "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.": "Тільки при виклику з контекстного меню маркованого списку. Якщо URL-адресу вставлено, нічого не робити.",
+  "Download the online PDF file and add to assets": "Завантажте PDF-файл онлайн і додайте його до своїх ресурсів"
+}

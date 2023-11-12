@@ -1,0 +1,12 @@
+{
+  "Create Hyperlink": "创建超链接",
+  "Title": "标题",
+  "Get the title": "获取标题",
+  "Error: Block not found": "错误：找不到块",
+  "Edit the title of online PDF": "编辑联机 PDF 的标题",
+  "Submit": "传输",
+  "The file was saved into assets.": "文件已保存到资产中。",
+  "A file with the same name was found in the asset.": "在资产中找到同名的文件。",
+  "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.": "仅当从项目符号列表的上下文菜单调用时。 如果粘贴了 URL，则不执行任何操作。",
+  "Download the online PDF file and add to assets": "下载在线 PDF 并将其添加到您的资产中"
+}

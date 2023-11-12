@@ -1,0 +1,12 @@
+{
+  "Create Hyperlink": "Köprü Oluşturma",
+  "Title": "başlık",
+  "Get the title": "Başlığı alın",
+  "Error: Block not found": "Hata: Blok bulunamadı",
+  "Edit the title of online PDF": "Çevrimiçi PDF'nin başlığını düzenleme",
+  "Submit": "Iletim",
+  "The file was saved into assets.": "Dosya varlığa kaydedildi.",
+  "A file with the same name was found in the asset.": "Varlıkta aynı ada sahip bir dosya bulundu.",
+  "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.": "Yalnızca madde işaretli bir listenin bağlam menüsünden çağrıldığında. URL yapıştırılmışsa hiçbir şey yapmayın.",
+  "Download the online PDF file and add to assets": "Çevrimiçi PDF'yi indirin ve varlıklarınıza ekleyin"
+}

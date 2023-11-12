@@ -6,7 +6,24 @@ import { convertOnlinePDF } from './convertOnlinePDF'
 import { checkDemoGraph, includeTitle } from './lib'
 import { settingsTemplate } from './settings'
 import ja from "./translations/ja.json"
-
+import af from "./translations/af.json"
+import de from "./translations/de.json"
+import es from "./translations/es.json"
+import fr from "./translations/fr.json"
+import id from "./translations/id.json"
+import it from "./translations/it.json"
+import ko from "./translations/ko.json"
+import nbNO from "./translations/nb-NO.json"
+import nl from "./translations/nl.json"
+import pl from "./translations/pl.json"
+import ptBR from "./translations/pt-BR.json"
+import ptPT from "./translations/pt-PT.json"
+import ru from "./translations/ru.json"
+import sk from "./translations/sk.json"
+import tr from "./translations/tr.json"
+import uk from "./translations/uk.json"
+import zhCN from "./translations/zh-CN.json"
+import zhHant from "./translations/zh-Hant.json"
 const key = "confirmHyperlink"
 let demoGraph: boolean = false
 let onBlockChangedToggle: boolean = false
@@ -15,7 +32,11 @@ let setURL = ""
 
 /* main */
 const main = async () => {
-    await l10nSetup({ builtinTranslations: { ja } })
+    await l10nSetup({
+        builtinTranslations: {//Full translations
+            ja, af, de, es, fr, id, it, ko, "nb-NO": nbNO, nl, pl, "pt-BR": ptBR, "pt-PT": ptPT, ru, sk, tr, uk, "zh-CN": zhCN, "zh-Hant": zhHant
+        }
+    })
     /* user settings */
     logseq.useSettingsSchema(settingsTemplate())
     if (!logseq.settings) setTimeout(() => logseq.showSettingsUI(), 300)
@@ -119,7 +140,7 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
     // リンクを作成
     await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format)
     // ロックを解除する
-    setTimeout(() =>   processing = false, 100);
+    setTimeout(() => processing = false, 100)
 })
 
 

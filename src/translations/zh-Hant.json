@@ -1,0 +1,12 @@
+{
+  "Create Hyperlink": "創建超連結",
+  "Title": "標題",
+  "Get the title": "獲取標題",
+  "Error: Block not found": "錯誤：找不到塊",
+  "Edit the title of online PDF": "編輯連線 PDF 的標題",
+  "Submit": "傳輸",
+  "The file was saved into assets.": "檔已保存到資產中。",
+  "A file with the same name was found in the asset.": "在資產中找到同名的檔。",
+  "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.": "僅當從項目符號清單的上下文功能表調用時。 如果粘貼了 URL，則不執行任何操作。",
+  "Download the online PDF file and add to assets": "下載在線 PDF 並將其添加到您的資產中"
+}

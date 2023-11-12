@@ -1,0 +1,12 @@
+{
+  "Create Hyperlink": "Creación de hipervínculos",
+  "Title": "título",
+  "Get the title": "Obtener el título",
+  "Error: Block not found": "Error: Bloque no encontrado",
+  "Edit the title of online PDF": "Editar el título de un PDF en línea",
+  "Submit": "Transmisión",
+  "The file was saved into assets.": "El archivo se guardó en el recurso.",
+  "A file with the same name was found in the asset.": "Se encontró un archivo con el mismo nombre en el recurso.",
+  "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.": "Solo cuando se invoca desde el menú contextual de una lista con viñetas. Si se pega la URL, no haga nada.",
+  "Download the online PDF file and add to assets": "Descargue el PDF en línea y agréguelo a sus activos"
+}

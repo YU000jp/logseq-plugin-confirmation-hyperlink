@@ -1,0 +1,12 @@
+{
+  "Create Hyperlink": "Oppretting av hyperkobling",
+  "Title": "tittel",
+  "Get the title": "Få tittelen",
+  "Error: Block not found": "Feil: Finner ikke blokken",
+  "Edit the title of online PDF": "Redigere tittelen på en PDF-fil på Internett",
+  "Submit": "Smitte",
+  "The file was saved into assets.": "Filen ble lagret i innholdselementet.",
+  "A file with the same name was found in the asset.": "En fil med samme navn ble funnet i innholdselementet.",
+  "Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.": "Bare når den startes på hurtigmenyen i en punktliste. Hvis URL-adressen er limt inn, gjør du ingenting.",
+  "Download the online PDF file and add to assets": "Last ned den elektroniske PDF-filen og legg den til i ressursene dine"
+}
