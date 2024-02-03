@@ -1,3 +1,10 @@
+## [1.7.4](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.3...v1.7.4) (2024-2-3)
+
+
+### Bug Fixes
+
+* **bug:** should not check when delete blocks ([d76d600](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/d76d600fa300124a231415cdb3a0f8b2e3c03e14))
+
 ## [1.7.3](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.2...v1.7.3) (2023-11-12)
 
 
