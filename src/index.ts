@@ -129,7 +129,8 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
         logseq.settings!.bulletMenuOnly === true // バレットメニューのみの設定項目がtrueの場合
         || demoGraph === true //デモグラフの場合は処理しない
         || processing === true // 重複を避ける
-        || (txMeta && txMeta["transact?"] === false) //ユーザー操作ではない場合 (transactは取引の意味)
+        || (txMeta
+            && txMeta["transact?"] === false) //ユーザー操作ではない場合 (transactは取引の意味)
         || (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null) !== null //ポップアップが表示されている場合は処理しない
     ) return
 
@@ -142,12 +143,13 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
         uuid: BlockEntity["uuid"],
         content: BlockEntity["content"],
         format: BlockEntity["format"]
-        } | null
-    
+    } | null
+
     if (!targetBlock) return
     // カーソル位置のブロックを取得
     const currentBlock = await logseq.Editor.getCurrentBlock() as { uuid: BlockEntity["uuid"] } | null
-    if (!currentBlock || targetBlock.uuid !== currentBlock.uuid) return
+    if (!currentBlock
+        || targetBlock.uuid !== currentBlock.uuid) return
     // ロックをかける
     processing = true
     // リンクを作成
@@ -206,13 +208,14 @@ export const showDialog = (url: string, uuid: string, left: string, top: string,
 
         //タイトル取得ボタン
         const divElement = parent.document.getElementById("hyperlink") as HTMLDivElement
-        if (divElement) {
+        if (divElement)
             divElement.addEventListener("mouseover", async () => {
                 if (processing) return
                 processing = true
                 const title = await getTitleFromURL(url)
                 const elementTitle = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement
-                if (title && elementTitle) elementTitle.value = includeTitle(title)
+                if (title
+                    && elementTitle) elementTitle.value = includeTitle(title)
                 elementTitle.disabled = false
                 //タイトルボタンを消す
                 const elementButtonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null
@@ -222,11 +225,10 @@ export const showDialog = (url: string, uuid: string, left: string, top: string,
                 if (button) button.style.display = "inline"
                 processing = false
             }, { once: true })
-        }
 
         //実行ボタン
         const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement
-        if (button) {
+        if (button)
             button.addEventListener("click", async () => {
                 if (processing) return
                 processing = true
@@ -245,7 +247,6 @@ export const showDialog = (url: string, uuid: string, left: string, top: string,
                 currentSetURL = ''
                 processing = false
             })
-        }
     }, 100)
 }
 
