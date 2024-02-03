@@ -1,7 +1,6 @@
 import { BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 import { IAsyncStorage } from '@logseq/libs/dist/modules/LSPlugin.Storage'
-import { t } from "logseq-l10n" //https://github.com/sethyuan/logseq-l10n
-    
+import { t } from "logseq-l10n"; //https://github.com/sethyuan/logseq-l10n
 import { timestamp } from './lib'
 
 export const convertOnlinePDF = async (url: string, uuid: string, inputTitle: string) => {
@@ -18,21 +17,18 @@ export const convertOnlinePDF = async (url: string, uuid: string, inputTitle: st
             const name = url.split("/").pop() as string
             let rename: string
             const find: Boolean = await storage.hasItem(name) as boolean
-            if (find === true) {
-                rename = `${timestamp()}_` + name
-            } else {
-                rename = name
-            }
+            rename = find === true ? `${timestamp()}_` + name : name
+
             await storage.setItem(rename, await res.arrayBuffer() as string)
-            if (find === true) {
+            if (find === true)
                 //重複しているためtimestampをつけたことを伝える
                 logseq.UI.showMsg(`${t("A file with the same name was found in the asset.")} "${rename}" `, "warning", { timeout: 2000 })
-            } else {
+            else
                 //ファイルの作成完了を伝える
                 logseq.UI.showMsg(`${t("The file was saved into assets.")} "${name}" `, "success", { timeout: 1200 })
-            }
+            
             //ブロックの更新
-            const block = await logseq.Editor.getBlock(uuid) as BlockEntity
+            const block = await logseq.Editor.getBlock(uuid) as { content: BlockEntity["content"] }
             if (block) await logseq.Editor.updateBlock(uuid, block.content.replace(url, `![${inputTitle}](../assets/storages/${logseq.baseInfo.id}/${rename})`))
         })
         .catch(error => {
@@ -40,3 +36,4 @@ export const convertOnlinePDF = async (url: string, uuid: string, inputTitle: st
             logseq.UI.showMsg(error, "error", { timeout: 1200 })
         })
 }
+
