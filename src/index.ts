@@ -130,7 +130,8 @@ const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
         || demoGraph === true //デモグラフの場合は処理しない
         || processing === true // 重複を避ける
         || (txMeta
-            && txMeta["transact?"] === false) //ユーザー操作ではない場合 (transactは取引の意味)
+            && (txMeta["transact?"] === false //ユーザー操作ではない場合 (transactは取引の意味)
+                || txMeta?.outlinerOp === "delete-blocks")) //ブロックが削除された場合
         || (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null) !== null //ポップアップが表示されている場合は処理しない
     ) return
 
