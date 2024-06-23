@@ -45,7 +45,7 @@ Install from Logseq Marketplace
 
 ## Showcase / Questions / Ideas / Help
 
-> Go to the [discussion](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/discussions) tab to ask and find this kind of things.
+> Go to the [Discussions](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/discussions) tab to ask and find this kind of things.
 
 Recommend
   1. *[Awesome Links](https://github.com/yoyurec/logseq-awesome-links)* plugin
