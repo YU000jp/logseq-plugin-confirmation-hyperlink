@@ -1,15 +1,17 @@
 # Logseq Plugin: *URL Hyperlink* 🔗
 
-[English](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink) | [日本語](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/blob/main/readme.ja.md)
-
 1. URLを貼り付けてハイパーリンクを作成します。URLを貼り付けた後、確認ダイアログが表示されます。
    > このプラグインは [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) プラグインの後継です。
 2. オンラインPDFファイルをダウンロードしてアセットに追加します
 
+<div align="right">
+
+[English](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink) | [日本語](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/blob/main/readme.ja.md)
 [![最新リリースバージョン](https://img.shields.io/github/v/release/YU000jp/logseq-plugin-confirmation-hyperlink)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
 [![ライセンス](https://img.shields.io/github/license/YU000jp/logseq-plugin-confirmation-hyperlink?color=blue)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/LICENSE)
 [![ダウンロード数](https://img.shields.io/github/downloads/YU000jp/logseq-plugin-confirmation-hyperlink/total.svg)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
- 公開日 2023/06/12
+ 公開日 2023/06/12 <a href="https://www.buymeacoffee.com/yu000japan"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pizza&emoji=🍕&slug=yu000japan&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff" /></a>
+ </div>
 
 ## 概要
 
@@ -55,10 +57,6 @@ Logseq マーケットプレイスからインストール
 
 ## 先行技術とクレジット
 
-1. Logseq プラグイン > [@0x7b1/ automatic url title](https://github.com/0x7b1/logseq-plugin-automatic-url-title)
-
-1. アイコン > [icooon-mono.com](https://icooon-mono.com/11386-%e3%82%a4%e3%83%b3%e3%82%bf%e3%83%bc%e3%83%8d%e3%83%83%e3%83%88%e3%81%ae%e3%82%a2%e3%82%a4%e3%82%b33/)
-
-1. 製作者 > [@YU000jp](https://github.com/YU000jp)
-
-<a href="https://www.buymeacoffee.com/yu000japan"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pizza&emoji=🍕&slug=yu000japan&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff" /></a>
+- Logseq プラグイン > [@0x7b1/ automatic url title](https://github.com/0x7b1/logseq-plugin-automatic-url-title)
+- アイコン > [icooon-mono.com](https://icooon-mono.com/11386-%e3%82%a4%e3%83%b3%e3%82%bf%e3%83%bc%e3%83%8d%e3%83%83%e3%83%88%e3%81%ae%e3%82%a2%e3%82%a4%e3%82%b33/)
+- 製作者 > [@YU000jp](https://github.com/YU000jp)
