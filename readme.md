@@ -1,30 +1,32 @@
 # Logseq Plugin: *URL Hyperlink* 🔗
 
-[English](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink) | [日本語](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/blob/main/readme.ja.md)
+- This plugin converts a URL to markdown. Logseq standard leaves it as a URL.
+  > It is the successor of [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) plugin.
 
-1. Create a Hyperlink by pasting a URL. After pasting the URL, a confirmation dialog will appear.
-   > This plugin is the successor of [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) plugin.
-1. Download the online PDF file and add to assets
 
-[![latest release version](https://img.shields.io/github/v/release/YU000jp/logseq-plugin-confirmation-hyperlink)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
+<div align="right">
+
+[English](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink) | [日本語](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/blob/main/readme.ja.md) [![latest release version](https://img.shields.io/github/v/release/YU000jp/logseq-plugin-confirmation-hyperlink)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
 [![License](https://img.shields.io/github/license/YU000jp/logseq-plugin-confirmation-hyperlink?color=blue)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/YU000jp/logseq-plugin-confirmation-hyperlink/total.svg)](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/releases)
- Published 2023/06/12
+ Published 20230612 <a href="https://www.buymeacoffee.com/yu000japan"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pizza&emoji=🍕&slug=yu000japan&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff" /></a>
+ </div>
 
 ## Overview
 
-- Paste a URL into a block somewhere. A dialog will then appear. Edit the title now.
-  > Logseq usually leaves it as a URL and does not retrieve the title.
-- If it is an online PDF, download it from that URL and import it into the asset.
-  > This feature is not available as standard. This is especially useful for online PDF files that are updated with the same URL.
+- Paste a URL into a block somewhere. A dialog will then appear. You can edit the title on the spot. It supports situations where URLs do not need to be converted.
+
 
    ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/e4ca591a-b6bb-4077-bd5d-4e42b184cb53)
+
+- If it is an online PDF, download it from that URL and add to your assets. This is especially useful for online PDF files that are updated with the same URL.
+  > This feature is not available as Logseq standard.
 
 ---
 
 ## Getting Started
 
-Install from Logseq Marketplace
+- Install from Logseq Marketplace
   - Press [`---`] on the top right toolbar to open [`Plugins`]. Select `Marketplace`. Type `URL` in the search field, select it from the search results and install.
 
 ### Usage
@@ -45,18 +47,17 @@ Install from Logseq Marketplace
 
 ## Showcase / Questions / Ideas / Help
 
-> Go to the [discussion](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/discussions) tab to ask and find this kind of things.
+> Go to the [Discussions](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/discussions) tab to ask and find this kind of things.
 
-Recommend
-  1. *[Awesome Links](https://github.com/yoyurec/logseq-awesome-links)* plugin
-    > Favicons for external links (with caching)
-  1. *[Assets Plus](https://github.com/xyhp915/logseq-assets-plus/)* plugin
-    > Browse assets. Find documents including PDFs.
+- Can be used in conjunction with
+  | Plugin | Description |
+  |--------|-------------|
+  | [Awesome Links](https://github.com/yoyurec/logseq-awesome-links) | Favicons for external links (with caching) |
+  | [Assets Plus](https://github.com/xyhp915/logseq-assets-plus/) | Browse assets. Find documents including PDFs. |
+
 
 ## Prior art & Credit
 
-1. Logseq Plugin > [@0x7b1/ automatic url title](https://github.com/0x7b1/logseq-plugin-automatic-url-title)
-1. Icon > [icooon-mono.com](https://icooon-mono.com/11386-%e3%82%a4%e3%83%b3%e3%82%bf%e3%83%bc%e3%83%8d%e3%83%83%e3%83%88%e3%81%ae%e3%82%a2%e3%82%a4%e3%82%b3%e3%83%b33/)
-1. Author > [@YU000jp](https://github.com/YU000jp)
-
-<a href="https://www.buymeacoffee.com/yu000japan"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a pizza&emoji=🍕&slug=yu000japan&button_colour=FFDD00&font_colour=000000&font_family=Poppins&outline_colour=000000&coffee_colour=ffffff" /></a>
+- Logseq Plugin > [@0x7b1/ automatic url title](https://github.com/0x7b1/logseq-plugin-automatic-url-title)
+- Icon > [icooon-mono.com](https://icooon-mono.com/11386-%e3%82%a4%e3%83%b3%e3%82%bf%e3%83%bc%e3%83%8d%e3%83%83%e3%83%88%e3%81%ae%e3%82%a2%e3%82%a4%e3%82%b3%e3%83%b33/)
+- Author > [@YU000jp](https://github.com/YU000jp)
