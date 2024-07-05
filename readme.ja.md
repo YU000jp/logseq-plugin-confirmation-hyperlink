@@ -1,8 +1,7 @@
 # Logseq Plugin: *URL Hyperlink* 🔗
 
-1. URLを貼り付けてハイパーリンクを作成します。URLを貼り付けた後、確認ダイアログが表示されます。
-   > このプラグインは [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) プラグインの後継です。
-2. オンラインPDFファイルをダウンロードしてアセットに追加します
+- このプラグインは、URLをマークダウンに変換します。Logseq 標準では URL として残されます。
+  > このプラグインは [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) プラグインの後継です。
 
 <div align="right">
 
@@ -15,18 +14,18 @@
 
 ## 概要
 
-- どこかのブロックにURLを貼り付けます。するとダイアログが表示されます。タイトルを編集できます。
-   > Logseqは通常、URLのままでタイトルを取得しないことがあります。
-- オンラインPDFの場合、そのURLからダウンロードしてアセットにインポートします。
-   > 標準ではこの機能はありません。同じURLで更新されるオンラインPDFファイルに特に便利です。
+- 1. URLをブロックのどこかに貼り付けます。ダイアログが表示されます。タイトルはその場で編集できます。URL を変換する必要がない状況をサポートします。
 
    ![画像](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/e4ca591a-b6bb-4077-bd5d-4e42b184cb53)
+
+- オンラインPDFの場合、そのURLからダウンロードしてアセットにインポートします。
+  > Logseq標準ではこの機能はありません。同じURLで更新されるオンラインPDFファイルに特に便利です。
 
 ---
 
 ## 始め方
 
-Logseq マーケットプレイスからインストール
+- Logseq マーケットプレイスからインストール
   - 右上のツールバーで [`---`] をクリックして [`プラグイン`] を開きます。`URL`を検索フィールドに入力し、検索結果から選択してインストールします。
 
 ### 使用方法
@@ -49,11 +48,11 @@ Logseq マーケットプレイスからインストール
 
 > [ディスカッション](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/discussions) タブに移動して、この種の情報を質問および見つけてください。
 
-おすすめ
-   1. *[Awesome Links](https://github.com/yoyurec/logseq-awesome-links)* プラグイン
-      > 外部リンクのファビコン（キャッシュ付き）
-   1. *[Assets Plus](https://github.com/xyhp915/logseq-assets-plus/)* プラグイン
-      > アセットを閲覧。PDFを含むドキュメントを検索します。
+- 次のプラグインを併用できます
+  | プラグイン名 | 説明 |
+  | --- | --- |
+  | [Awesome Links](https://github.com/yoyurec/logseq-awesome-links) | 外部リンクのファビコン（キャッシュ付き） |
+  | [Assets Plus](https://github.com/xyhp915/logseq-assets-plus/) | アセットを閲覧。PDFを含むドキュメントを検索します。 |
 
 ## 先行技術とクレジット
 
