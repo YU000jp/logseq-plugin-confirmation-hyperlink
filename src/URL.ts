@@ -94,15 +94,27 @@ export const getTitleFromURL = async (url: string): Promise<string> => {
     }
     return ''
 }
-const getEncodingFromHTML = (buffer: ArrayBuffer): string => {
-    const uint8Array = new Uint8Array(buffer)
-    const dom = new DOMParser().parseFromString(new TextDecoder().decode(uint8Array), 'text/html')
-    return (
-        dom.querySelector('meta[charset]')?.getAttribute?.('charset') ??
-        (dom.querySelector('meta[http-equiv="content-type"]') as HTMLMetaElement)?.content?.match?.(/charset=([^;]+)/)?.[1] ??
-        'UTF-8'
-    )
-}
+// const getEncodingConfigFromHTML = (buffer: ArrayBuffer): string => {
+
+//     const dom = new DOMParser().parseFromString(new TextDecoder().decode(new Uint8Array(buffer)), 'text/html')
+//     return (
+//         dom.querySelector('meta[charset]')?.getAttribute?.('charset') ??
+//         (dom.querySelector('meta[http-equiv="content-type"]') as HTMLMetaElement)?.content?.match?.(/charset=([^;]+)/)?.[1] ??
+//         'UTF-8'
+//     )
+// }
+
+const getEncodingConfigFromHTML = (buffer: ArrayBuffer): string => {
+    // Decode only a portion of the buffer, assuming meta tags are near the beginning
+    const initialChunk = new Uint8Array(buffer, 0, Math.min(buffer.byteLength, 1024));
+    const htmlString = new TextDecoder().decode(initialChunk);
+
+    const charsetMatch = htmlString.match(/<meta\s+charset=["']?([^"']+)["']?/i);
+    if (charsetMatch) return charsetMatch[1];
+
+    const contentTypeMatch = htmlString.match(/<meta\s+http-equiv=["']content-type["'][^>]*content=["']?[^;]+;\s*charset=([^"']+)["']?/i);
+    return contentTypeMatch ? contentTypeMatch[1] : 'UTF-8';
+};
 
 export const convertUrlToMarkdownLink = (title: string, url, text, applyFormat) => {
     if (!title) return
