@@ -35,17 +35,33 @@ export const DEFAULT_REGEX = {
     pdfExtension: /\.(pdf)$/i,
 }
 
-export const isImage = (url: string) => (new RegExp(DEFAULT_REGEX.imageExtension)).test(url)
-export const isPDF = (url: string) => (new RegExp(DEFAULT_REGEX.pdfExtension)).test(url)
-export const isAlreadyFormatted = (text: string, urlIndex: number, formatBeginning: string) => text.slice(urlIndex - 2, urlIndex) === formatBeginning
+
+export const isImage = (url: string) =>
+    (new RegExp(DEFAULT_REGEX.imageExtension)).test(url)
+
+
+export const isPDF = (url: string) =>
+    (new RegExp(DEFAULT_REGEX.pdfExtension)).test(url)
+
+
+export const isAlreadyFormatted =
+    (text: string, urlIndex: number, formatBeginning: string) => text.slice(urlIndex - 2, urlIndex) === formatBeginning
+
+
 export const isWrappedIn = (text, url) => {
     // チェックをおこなう
-    const wrappedLinks = text.match(DEFAULT_REGEX.wrappedInCommand) || text.match(DEFAULT_REGEX.wrappedInHTML) || text.match(DEFAULT_REGEX.wrappedInApostrophe) || text.match(DEFAULT_REGEX.wrappedInHiccup)
-    if (!wrappedLinks) return false
+    const wrappedLinks = text.match(DEFAULT_REGEX.wrappedInCommand)
+        || text.match(DEFAULT_REGEX.wrappedInHTML)
+        || text.match(DEFAULT_REGEX.wrappedInApostrophe)
+        || text.match(DEFAULT_REGEX.wrappedInHiccup)
+    if (!wrappedLinks)
+        return false
     return wrappedLinks.some(command => command.includes(url))
 }
 
+
 export const getFormatSettings = (format: string) => FORMAT_SETTINGS[format]
+
 
 export const FORMAT_SETTINGS = {
     //ユーザーが設定したフォーマット
@@ -66,10 +82,13 @@ export const getTitleFromURL = async (url: string): Promise<string> => {
         const res = await fetch(url) as Response
         if (!res.ok) return ''
         const buffer = await res.arrayBuffer() as ArrayBuffer
-        const encoding = getEncodingFromHTML(buffer)
-        const decodedHtml = new TextDecoder(encoding).decode(buffer) //文字化け対策
+        const encodingConfig = getEncodingConfigFromHTML(buffer)
+        const decodedHtml = new TextDecoder(encodingConfig).decode(buffer) //文字化け対策
         let matches = decodedHtml.match(DEFAULT_REGEX.htmlTitleTag)
-        if (matches !== null && matches.length > 1 && matches[2] !== null) return matches[2].trim()
+        if (matches !== null
+            && matches.length > 1
+            && matches[2] !== null)
+            return matches[2].trim()
     } catch (e) {
         console.error(e)
     }

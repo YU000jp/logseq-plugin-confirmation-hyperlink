@@ -20,6 +20,7 @@ export const convertOnlinePDF = async (url: string, uuid: string, inputTitle: st
             rename = find === true ? `${timestamp()}_` + name : name
 
             await storage.setItem(rename, await res.arrayBuffer() as string)
+
             if (find === true)
                 //重複しているためtimestampをつけたことを伝える
                 logseq.UI.showMsg(`${t("A file with the same name was found in the asset.")} "${rename}" `, "warning", { timeout: 2000 })
@@ -29,7 +30,10 @@ export const convertOnlinePDF = async (url: string, uuid: string, inputTitle: st
             
             //ブロックの更新
             const block = await logseq.Editor.getBlock(uuid) as { content: BlockEntity["content"] }
-            if (block) await logseq.Editor.updateBlock(uuid, block.content.replace(url, `![${inputTitle}](../assets/storages/${logseq.baseInfo.id}/${rename})`))
+            if (block) await logseq.Editor.updateBlock(
+                uuid,
+                block.content
+                    .replace(url, `![${inputTitle}](../assets/storages/${logseq.baseInfo.id}/${rename})`))
         })
         .catch(error => {
             //読み込みできなかった場合

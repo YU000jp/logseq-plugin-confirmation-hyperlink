@@ -24,19 +24,29 @@ import uk from "./translations/uk.json"
 import zhCN from "./translations/zh-CN.json"
 import zhHant from "./translations/zh-Hant.json"
 import { parseBlockForLink } from './parse'
+
+// Key
 export const key = "confirmHyperlink"
+
+// State
 let demoGraph: boolean = false
 let onBlockChangedToggle: boolean = false
 let processing: Boolean = false // ロック用フラグ
-
+let processingForButton: Boolean = false
 let currentSetURL: string = ""
+
+
 export const setURL = (change: string): string => {
-    if (change !== "") currentSetURL = change
+    if (change !== "")
+        currentSetURL = change
     return currentSetURL
 }
 
+
+
 /* main */
 const main = async () => {
+
     await l10nSetup({
         builtinTranslations: {//Full translations
             ja, af, de, es, fr, id, it, ko, "nb-NO": nbNO, nl, pl, "pt-BR": ptBR, "pt-PT": ptPT, ru, sk, tr, uk, "zh-CN": zhCN, "zh-Hant": zhHant
@@ -44,7 +54,10 @@ const main = async () => {
     })
     /* user settings */
     logseq.useSettingsSchema(settingsTemplate())
-    if (!logseq.settings) setTimeout(() => logseq.showSettingsUI(), 300)
+
+    if (!logseq.settings)
+        setTimeout(() =>
+            logseq.showSettingsUI(), 300)
 
     //CSS text-overflow
     //https://developer.mozilla.org/ja/docs/Web/CSS/text-overflow
@@ -65,9 +78,6 @@ const main = async () => {
             }
 
             & button {
-                &#hyperlinkButtonGetTitle {
-                    font-size: .9em;
-                }
                 &#hyperlinkButton {
                     font-size: 2em;
                     font-family: "tabler-icons";
@@ -85,22 +95,12 @@ const main = async () => {
 
     //ページ読み込み時
     logseq.App.onPageHeadActionsSlotted(async () => {
-        demoGraph = await checkDemoGraph() as boolean
-        if (demoGraph === true
-            && onBlockChangedToggle === false) {
-            onBlockChanged()
-            onBlockChangedToggle = true
-        }
+        isDemoGraph()
     })
 
     //グラフ変更時
     logseq.App.onCurrentGraphChanged(async () => {
-        demoGraph = await checkDemoGraph() as boolean
-        if (demoGraph === true
-            && onBlockChangedToggle === false) {
-            onBlockChanged()
-            onBlockChangedToggle = true
-        }
+        isDemoGraph()
     })
 
     if (demoGraph === false) {
@@ -109,12 +109,14 @@ const main = async () => {
     }
 
     logseq.Editor.registerBlockContextMenuItem(t("Create Hyperlink"), async ({ uuid }) => {
-        if (processing === true) return
-        const block = await logseq.Editor.getBlock(uuid) as { uuid: BlockEntity["uuid"], content: BlockEntity["content"], format: BlockEntity["format"] } | null
-        if (block) {
-            processing = true // ロックをかける
+        if (processing === true)
+            return
+        processing = true // ロックをかける
+
+        const block = await logseq.Editor.getBlock(uuid, { includeChildren: false }) as { uuid: BlockEntity["uuid"], content: BlockEntity["content"], format: BlockEntity["format"] } | null
+        if (block)
             await parseBlockForLink(block.uuid, block.content, block.format)
-        }
+
         processing = false // ロックを解除する
         return
     })
@@ -123,44 +125,76 @@ const main = async () => {
 
 
 
-const onBlockChanged = () => logseq.DB.onChanged(async ({ blocks, txMeta }) => {
-
-    if (//!(txMeta?.outlinerOp) //アウトライナー操作のみ
-        logseq.settings!.bulletMenuOnly === true // バレットメニューのみの設定項目がtrueの場合
-        || demoGraph === true //デモグラフの場合は処理しない
-        || processing === true // 重複を避ける
-        || (txMeta
-            && (txMeta["transact?"] === false //ユーザー操作ではない場合 (transactは取引の意味)
-                || txMeta?.outlinerOp === "delete-blocks")) //ブロックが削除された場合
-        || (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null) !== null //ポップアップが表示されている場合は処理しない
-    ) return
-
-    // ターゲットブロックを取得
-    const targetBlock = blocks.find((block) =>
-        block.page
-        && block.content
-        && block.content !== ""
-    ) as {
-        uuid: BlockEntity["uuid"],
-        content: BlockEntity["content"],
-        format: BlockEntity["format"]
-    } | null
-
-    if (!targetBlock) return
-    // カーソル位置のブロックを取得
-    const currentBlock = await logseq.Editor.getCurrentBlock() as { uuid: BlockEntity["uuid"] } | null
-    if (!currentBlock
-        || targetBlock.uuid !== currentBlock.uuid) return
-    // ロックをかける
-    processing = true
-    // リンクを作成
-    await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format)
-    // ロックを解除する
-    setTimeout(() => processing = false, 100)
-})
+const isDemoGraph = async () => {
+    demoGraph = await checkDemoGraph() as boolean
+    if (demoGraph === true
+        && onBlockChangedToggle === false) {
+        onBlockChanged()
+        onBlockChangedToggle = true
+    }
+}
 
 
-export const showDialog = (url: string, uuid: string, left: string, top: string, text: string, formatSettings: { formatBeginning: string; applyFormat: (title: any, url: any) => string }) => {
+const onBlockChanged = () =>
+    logseq.DB.onChanged(async ({ blocks, txMeta }) => {
+
+        if (//!(txMeta?.outlinerOp) //アウトライナー操作のみ
+            logseq.settings!.bulletMenuOnly === true // バレットメニューのみの設定項目がtrueの場合
+            || demoGraph === true //デモグラフの場合は処理しない
+            || processing === true // 重複を避ける
+            || (txMeta
+                && (txMeta["transact?"] === false //ユーザー操作ではない場合 (transactは取引の意味)
+                    || txMeta?.outlinerOp === "delete-blocks")) //ブロックが削除された場合
+            || (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null) !== null //ポップアップが表示されている場合は処理しない
+        ) return
+
+        // ターゲットブロックを取得
+        const targetBlock = blocks.find((block) =>
+            block.page
+            && block.content
+            && block.content !== ""
+        ) as {
+            uuid: BlockEntity["uuid"],
+            content: BlockEntity["content"],
+            format: BlockEntity["format"]
+        } | null
+
+        if (!targetBlock)
+            return
+
+        // カーソル位置のブロックを取得
+        const currentBlock = await logseq.Editor.getCurrentBlock() as { uuid: BlockEntity["uuid"] } | null
+        if (!currentBlock
+            || targetBlock.uuid !== currentBlock.uuid)
+            return
+
+        // ロックをかける
+        processing = true
+        // ロックを解除する (処理中断対策)
+        setTimeout(() => processing = false, 300)
+
+        // リンクを作成
+        await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format)
+
+        // ロックを解除する
+        setTimeout(() => processing = false, 100)
+    })
+
+
+export const showDialog = (
+    url: string,
+    uuid: string,
+    left: string,
+    top: string,
+    text: string,
+    formatSettings: {
+        formatBeginning: string
+        applyFormat: (title: any, url: any) => string
+    }
+) => {
+
+    setURL("")
+
     logseq.provideUI({
         attrs: {
             title: url,
@@ -175,15 +209,14 @@ export const showDialog = (url: string, uuid: string, left: string, top: string,
                             <input id="hyperlinkTitle" type="text" style="width:450px" disabled="true" title="${t("Title")}" placeholder="${t("Get the title")}"/>
                             <button id="hyperlinkButton" title="${t("Submit")}">&#xed00;</button>
                         </p>
-                        <button id="hyperlinkButtonGetTitle"></button>
                     </div>
                     <style>
                     body>div {
                         &#root>div {
-                            &.light-theme>main>div span#dot-${uuid}{
+                            &.light-theme>main>div span#dot-${uuid} {
                                 outline: 2px solid var(--ls-link-ref-text-color);
                             }
-                            &.dark-theme>main>div span#dot-${uuid}{
+                            &.dark-theme>main>div span#dot-${uuid} {
                                 outline: 2px solid aliceblue;
                             }
                         }
@@ -204,49 +237,68 @@ export const showDialog = (url: string, uuid: string, left: string, top: string,
             boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
         },
     })
+
     setTimeout(() => {
-        let processing: Boolean = false
 
         //タイトル取得ボタン
         const divElement = parent.document.getElementById("hyperlink") as HTMLDivElement
         if (divElement)
             divElement.addEventListener("mouseover", async () => {
-                if (processing) return
-                processing = true
+                if (processingForButton)
+                    return
+                processingForButton = true
+                setTimeout(() =>
+                    processingForButton = false
+                    , 100)
+
                 const title = await getTitleFromURL(url)
+
+                console.log(title) //TODO:
+
+                console.log(decodeURI(title))
+
+
+
                 const elementTitle = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement
                 if (title
-                    && elementTitle) elementTitle.value = includeTitle(title)
+                    && elementTitle)
+                    elementTitle.value = includeTitle(title)
                 elementTitle.disabled = false
-                //タイトルボタンを消す
-                const elementButtonGetTitle = parent.document.getElementById("hyperlinkButtonGetTitle") as HTMLButtonElement | null
-                if (elementButtonGetTitle) elementButtonGetTitle.remove()
+
                 //実行ボタンを表示
                 const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement | null
-                if (button) button.style.display = "inline"
-                processing = false
+                if (button)
+                    button.style.display = "inline"
+
             }, { once: true })
 
         //実行ボタン
         const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement
         if (button)
             button.addEventListener("click", async () => {
-                if (processing) return
-                processing = true
+                if (processingForButton)
+                    return
+                processingForButton = true
+
                 const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value
-                if (!inputTitle) return
-                const block = await logseq.Editor.getBlock(uuid) as BlockEntity | null
+                if (!inputTitle)
+                    return
+
+                const block = await logseq.Editor.getBlock(uuid, { includeChildren: false }) as { uuid: BlockEntity["uuid"] } | null
                 if (block) {
                     const updatedTitle = convertUrlToMarkdownLink(inputTitle, url, text, formatSettings.applyFormat)
-                    if (updatedTitle) logseq.Editor.updateBlock(uuid, updatedTitle)
+                    if (updatedTitle)
+                        logseq.Editor.updateBlock(uuid, updatedTitle)
                 } else
                     logseq.UI.showMsg(t("Error: Block not found"), "warning")
 
                 //実行されたらポップアップを削除
                 const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null
-                if (element) element.remove()
+                if (element)
+                    element.remove()
                 currentSetURL = ''
-                processing = false
+
+                processingForButton = false
             })
     }, 100)
 }
