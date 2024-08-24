@@ -253,12 +253,6 @@ export const showDialog = (
 
                 const title = await getTitleFromURL(url)
 
-                console.log(title) //TODO:
-
-                console.log(decodeURI(title))
-
-
-
                 const elementTitle = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement
                 if (title
                     && elementTitle)

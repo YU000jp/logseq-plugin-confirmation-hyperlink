@@ -22,9 +22,6 @@ export const DEFAULT_REGEX = {
     //https://github.com/YU000jp/logseq-plugin-some-menu-extender/issues/8
     wrappedInHiccup: /\[:\s*(.*?)\s*?(https?:\/\/(?:www\.|(?!www))\w[\w-]+\.\S{2,}|www\.\w[\w-]+\.\S{2,}|https?:\/\/(?:www\.|(?!www))\w+\.\S{2,}|www\.\w+\.\S{2,})\s*(.*?)\s*\]/gis,
 
-    // <title>タグを取得するための正規表現
-    htmlTitleTag: /<title(\s[^>]+)*>([^<]*)<\/title>/,
-
     // URLを取得するための正規表現
     line: /(https?:\/\/(?:www\.|\b)(\w[\w-]+\w\.[^\s　]{2,}|www\.\w[\w-]+\w\.[^\s　]{2,}|\w+\.[^\s　]{2,}|www\.\w+\.[^\s　]{2,}))(?!\))/gi,
 
@@ -77,46 +74,72 @@ export const FORMAT_SETTINGS = {
     },
 }
 
+
 export const getTitleFromURL = async (url: string): Promise<string> => {
     try {
+        console.log("fetch: ", url)
         const res = await fetch(url) as Response
         if (!res.ok) return ''
-        const buffer = await res.arrayBuffer() as ArrayBuffer
-        const encodingConfig = getEncodingConfigFromHTML(buffer)
-        const decodedHtml = new TextDecoder(encodingConfig).decode(buffer) //文字化け対策
-        let matches = decodedHtml.match(DEFAULT_REGEX.htmlTitleTag)
-        if (matches !== null
-            && matches.length > 1
-            && matches[2] !== null)
-            return matches[2].trim()
+        const { charset, title } = getEncodingConfigAndTitleFromHTML(await res.arrayBuffer() as ArrayBuffer)
+        if (title) {
+            console.log("Get title: ",title)
+            return title
+        }
     } catch (e) {
         console.error(e)
     }
     return ''
 }
-// const getEncodingConfigFromHTML = (buffer: ArrayBuffer): string => {
 
-//     const dom = new DOMParser().parseFromString(new TextDecoder().decode(new Uint8Array(buffer)), 'text/html')
-//     return (
-//         dom.querySelector('meta[charset]')?.getAttribute?.('charset') ??
-//         (dom.querySelector('meta[http-equiv="content-type"]') as HTMLMetaElement)?.content?.match?.(/charset=([^;]+)/)?.[1] ??
-//         'UTF-8'
-//     )
-// }
-
-const getEncodingConfigFromHTML = (buffer: ArrayBuffer): string => {
-    // Decode only a portion of the buffer, assuming meta tags are near the beginning
-    const initialChunk = new Uint8Array(buffer, 0, Math.min(buffer.byteLength, 1024));
-    const htmlString = new TextDecoder().decode(initialChunk);
-
-    const charsetMatch = htmlString.match(/<meta\s+charset=["']?([^"']+)["']?/i);
-    if (charsetMatch) return charsetMatch[1];
-
-    const contentTypeMatch = htmlString.match(/<meta\s+http-equiv=["']content-type["'][^>]*content=["']?[^;]+;\s*charset=([^"']+)["']?/i);
-    return contentTypeMatch ? contentTypeMatch[1] : 'UTF-8';
-};
 
 export const convertUrlToMarkdownLink = (title: string, url, text, applyFormat) => {
     if (!title) return
     return text.replace(url, applyFormat(includeTitle(title), url))
+}
+
+
+interface EncodingAndTitle {
+    charset: string
+    title: string | null
+}
+
+const decodeHtmlEntities = (text: string): string => {
+    const tempElement = document.createElement('textarea')
+    tempElement.innerHTML = text
+    return tempElement.value
+}
+
+const getEncodingConfigAndTitleFromHTML = (buffer: ArrayBuffer): EncodingAndTitle => {
+    const initialChunk = new Uint8Array(buffer, 0, Math.min(buffer.byteLength, 2048))
+    let htmlString = new TextDecoder('utf-8').decode(initialChunk)
+
+    let charsetMatch = htmlString.match(/<meta\s+charset=["']?([^"']+)["']?/i)
+    let charset = charsetMatch ? charsetMatch[1] : null
+
+    if (!charset) {
+        const contentTypeMatch = htmlString.match(/<meta\s+http-equiv=["']content-type["'][^>]*content=["']?[^;]+;\s*charset=([^"']+)["']?/i)
+        charset = contentTypeMatch ? contentTypeMatch[1] : 'UTF-8'
+    }
+
+    let title: string | null = null
+    if (charset.toLowerCase() === 'utf-8') {
+        const titleMatch = htmlString.match(/<title>(.*?)<\/title>/i)
+        if (titleMatch)
+            title = decodeHtmlEntities(titleMatch[1].trim())
+    } else {
+        const titleTagPosition = htmlString.indexOf('<title>')
+        if (titleTagPosition !== -1) {
+            const endPosition = Math.min(buffer.byteLength, titleTagPosition + 2048)
+            const titleChunk = new Uint8Array(buffer.slice(titleTagPosition, endPosition))
+            htmlString = new TextDecoder(charset).decode(titleChunk)
+            const titleMatch = htmlString.match(/<title>(.*?)<\/title>/i)
+            if (titleMatch)
+                title = decodeHtmlEntities(titleMatch[1].trim())
+        }
+    }
+
+    return {
+        charset: charset ?? 'UTF-8',
+        title
+    }
 }
