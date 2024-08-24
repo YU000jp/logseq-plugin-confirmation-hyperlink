@@ -15,6 +15,7 @@
 ## Overview
 
 - Paste the URL in any block and a dialogue will appear. Edit the title and press the Decide button to convert it to a markdown. If the dialogue is closed, no conversion takes place. This avoids unnecessary conversions.
+  > Fetching (retrieving the title from the URL destination) is performed when the cursor is placed over the input field.
 
 
    ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/e4ca591a-b6bb-4077-bd5d-4e42b184cb53)
