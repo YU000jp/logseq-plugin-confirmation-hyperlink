@@ -1,6 +1,6 @@
 # Logseq Plugin: *URL Hyperlink* 🔗
 
-- このプラグインは、URLをマークダウンに変換します。Logseq 標準では URL として残されます。
+- このプラグインはURLをマークダウンに変換します。Logseq標準はURLのままです。
   > このプラグインは [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) プラグインの後継です。
 
 <div align="right">
@@ -14,12 +14,11 @@
 
 ## 概要
 
-- 1. URLをブロックのどこかに貼り付けます。ダイアログが表示されます。タイトルはその場で編集できます。URL を変換する必要がない状況をサポートします。
+- 任意のブロックにURLを貼り付けると、ダイアログが表示されます。タイトルを編集し、決定ボタンを押すとマークダウンに変換されます。ダイアログを閉じると、変換は行われません。これにより不要な変換を避けることができます。
 
    ![画像](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/e4ca591a-b6bb-4077-bd5d-4e42b184cb53)
 
-- オンラインPDFの場合、そのURLからダウンロードしてアセットにインポートします。
-  > Logseq標準ではこの機能はありません。同じURLで更新されるオンラインPDFファイルに特に便利です。
+- (オプション) オンラインPDFの場合は、そのURLからダウンロードしてアセットに追加します。これは、同じURLで更新されるオンラインPDFファイルの場合に特に便利です。
 
 ---
 

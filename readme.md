@@ -1,6 +1,6 @@
 # Logseq Plugin: *URL Hyperlink* 🔗
 
-- This plugin converts a URL to markdown. Logseq standard leaves it as a URL.
+- This plugin converts URL to markdown; the Logseq standard leaves them as URL.
   > It is the successor of [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) plugin.
 
 
@@ -14,13 +14,12 @@
 
 ## Overview
 
-- Paste a URL into a block somewhere. A dialog will then appear. You can edit the title on the spot. It supports situations where URLs do not need to be converted.
+- Paste the URL in any block and a dialogue will appear. Edit the title and press the Decide button to convert it to a markdown. If the dialogue is closed, no conversion takes place. This avoids unnecessary conversions.
 
 
    ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/e4ca591a-b6bb-4077-bd5d-4e42b184cb53)
 
-- If it is an online PDF, download it from that URL and add to your assets. This is especially useful for online PDF files that are updated with the same URL.
-  > This feature is not available as Logseq standard.
+- If it is an online PDF, download it from its URL and add it to the asset. This is particularly useful for online PDF files that are updated at the same URL.
 
 ---
 
