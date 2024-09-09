@@ -3,6 +3,9 @@
 - このプラグインはURLをマークダウンに変換します。Logseq標準はURLのままです。
   > このプラグインは [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) プラグインの後継です。
 
+> [!WARNING]
+>現在、このプラグインはLogseq dbバージョンでは動作しません。
+
 <div align="right">
 
 [English](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink) | [日本語](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/blob/main/readme.ja.md)

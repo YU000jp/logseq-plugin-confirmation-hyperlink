@@ -3,6 +3,8 @@
 - This plugin converts URL to markdown; the Logseq standard leaves them as URL.
   > It is the successor of [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) plugin.
 
+> [!WARNING]
+This plugin does not work with Logseq db version now.
 
 <div align="right">
 
