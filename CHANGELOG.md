@@ -1,3 +1,15 @@
+## [1.7.5](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.4...v1.7.5) (2024-10-19)
+
+
+### Bug Fixes
+
+* **bug:** If the title contains ‘&quot;’ or similar words / Processing optimisation [#37](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/issues/37) ([aed8309](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/aed830991ada19fe39fec33d0702ba9194718bc9))
+
+
+### Performance Improvements
+
+* Reduce the overhead of getting the charset from HTML. ([7fab5b3](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/7fab5b3294b2babd6e633b1d2d2c365a46e82271))
+
 ## [1.7.4](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.3...v1.7.4) (2024-2-3)
 
 
