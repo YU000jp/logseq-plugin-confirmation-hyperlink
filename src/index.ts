@@ -1,16 +1,15 @@
 import '@logseq/libs' //https://plugins-doc.logseq.com/
 import { BlockEntity } from '@logseq/libs/dist/LSPlugin.user'
 import { setup as l10nSetup, t } from "logseq-l10n" //https://github.com/sethyuan/logseq-l10n
-import { convertUrlToMarkdownLink, getTitleFromURL } from './URL'
-import { checkDemoGraph, includeTitle } from './lib'
+import { getTitleFromURL } from './getTitle'
 import { settingsTemplate } from './settings'
-import ja from "./translations/ja.json"
 import af from "./translations/af.json"
 import de from "./translations/de.json"
 import es from "./translations/es.json"
 import fr from "./translations/fr.json"
 import id from "./translations/id.json"
 import it from "./translations/it.json"
+import ja from "./translations/ja.json"
 import ko from "./translations/ko.json"
 import nbNO from "./translations/nb-NO.json"
 import nl from "./translations/nl.json"
@@ -23,278 +22,172 @@ import tr from "./translations/tr.json"
 import uk from "./translations/uk.json"
 import zhCN from "./translations/zh-CN.json"
 import zhHant from "./translations/zh-Hant.json"
-import { parseBlockForLink } from './parse'
 
-// Key
-export const key = "confirmHyperlink"
-
-// State
-let demoGraph: boolean = false
-let onBlockChangedToggle: boolean = false
-let processing: Boolean = false // ロック用フラグ
-let processingForButton: Boolean = false
-let currentSetURL: string = ""
-
-
-export const setURL = (change: string): string => {
-    if (change !== "")
-        currentSetURL = change
-    return currentSetURL
+const initializePlugin = async () => {
+    await setupTranslations()
+    setupUserSettings()
+    setupEventListeners()
+    setTimeout(() => observeMainContent(), 500)
 }
 
-
-
-/* main */
-const main = async () => {
-
+const setupTranslations = async () => {
     await l10nSetup({
-        builtinTranslations: {//Full translations
+        builtinTranslations: {
             ja, af, de, es, fr, id, it, ko, "nb-NO": nbNO, nl, pl, "pt-BR": ptBR, "pt-PT": ptPT, ru, sk, tr, uk, "zh-CN": zhCN, "zh-Hant": zhHant
         }
     })
-    /* user settings */
-    logseq.useSettingsSchema(settingsTemplate())
-
-    if (!logseq.settings)
-        setTimeout(() =>
-            logseq.showSettingsUI(), 300)
-
-    //CSS text-overflow
-    //https://developer.mozilla.org/ja/docs/Web/CSS/text-overflow
-    logseq.provideStyle(`
-    body>div[data-ref="confirmation-hyperlink"] {
-        & div#hyperlink {
-            & p {
-                overflow: hidden;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                margin: unset;
-            }
-
-            & input {
-                background-color: var(--ls-primary-background-color);
-                color: var(--ls-primary-text-color);
-                boxShadow: 1px 2px 5px var(--ls-secondary-background-color);
-            }
-
-            & button {
-                &#hyperlinkButton {
-                    font-size: 2em;
-                    font-family: "tabler-icons";
-                    padding: 0;
-                }
-
-                &:hover {
-                    background-color: var(--ls-secondary-background-color);
-                }
-            }
-        }
-    }
-    `)
-
-
-    //ページ読み込み時
-    logseq.App.onPageHeadActionsSlotted(async () => {
-        isDemoGraph()
-    })
-
-    //グラフ変更時
-    logseq.App.onCurrentGraphChanged(async () => {
-        isDemoGraph()
-    })
-
-    if (demoGraph === false) {
-        onBlockChanged()
-        onBlockChangedToggle = true
-    }
-
-    logseq.Editor.registerBlockContextMenuItem(t("Create Hyperlink"), async ({ uuid }) => {
-        if (processing === true)
-            return
-        processing = true // ロックをかける
-
-        const block = await logseq.Editor.getBlock(uuid, { includeChildren: false }) as { uuid: BlockEntity["uuid"], content: BlockEntity["content"], format: BlockEntity["format"] } | null
-        if (block)
-            await parseBlockForLink(block.uuid, block.content, block.format)
-
-        processing = false // ロックを解除する
-        return
-    })
-
-}/* end_main */
-
-
-
-const isDemoGraph = async () => {
-    demoGraph = await checkDemoGraph() as boolean
-    if (demoGraph === true
-        && onBlockChangedToggle === false) {
-        onBlockChanged()
-        onBlockChangedToggle = true
-    }
 }
 
+const setupUserSettings = () => {
+    logseq.useSettingsSchema(settingsTemplate())
+    const updateInfo = "20250323a"
+    if (!logseq.settings)
+        setTimeout(() => logseq.showSettingsUI(), 300)
+    else
+        if (logseq.settings!.updateInfo !== updateInfo) {
+            setTimeout(() => logseq.showSettingsUI(), 300)
+            logseq.updateSettings({ updateInfo })
+        }
+}
 
-const onBlockChanged = () =>
-    logseq.DB.onChanged(async ({ blocks, txMeta }) => {
-
-        if (//!(txMeta?.outlinerOp) //アウトライナー操作のみ
-            logseq.settings!.bulletMenuOnly === true // バレットメニューのみの設定項目がtrueの場合
-            || demoGraph === true //デモグラフの場合は処理しない
-            || processing === true // 重複を避ける
-            || (txMeta
-                && (txMeta["transact?"] === false //ユーザー操作ではない場合 (transactは取引の意味)
-                    || txMeta?.outlinerOp === "delete-blocks")) //ブロックが削除された場合
-            || (parent.document.getElementById(`${logseq.baseInfo.id}--${key}`) as HTMLDivElement | null) !== null //ポップアップが表示されている場合は処理しない
-        ) return
-
-        // ターゲットブロックを取得
-        const targetBlock = blocks.find((block) =>
-            block.page
-            && block.content
-            && block.content !== ""
-        ) as {
-            uuid: BlockEntity["uuid"],
-            content: BlockEntity["content"],
-            format: BlockEntity["format"]
-        } | null
-
-        if (!targetBlock)
-            return
-
-        // カーソル位置のブロックを取得
-        const currentBlock = await logseq.Editor.getCurrentBlock() as { uuid: BlockEntity["uuid"] } | null
-        if (!currentBlock
-            || targetBlock.uuid !== currentBlock.uuid)
-            return
-
-        // ロックをかける
-        processing = true
-        // ロックを解除する (処理中断対策)
-        setTimeout(() => processing = false, 300)
-
-        // リンクを作成
-        await parseBlockForLink(targetBlock.uuid, targetBlock.content, targetBlock.format)
-
-        // ロックを解除する
-        setTimeout(() => processing = false, 100)
+const setupEventListeners = () => {
+    logseq.App.onSidebarVisibleChanged(async ({ visible }) => {
+        if (visible) mutationCallback()
     })
 
-
-export const showDialog = (
-    url: string,
-    uuid: string,
-    left: string,
-    top: string,
-    text: string,
-    formatSettings: {
-        formatBeginning: string
-        applyFormat: (title: any, url: any) => string
-    }
-) => {
-
-    setURL("")
-
-    logseq.provideUI({
-        attrs: {
-            title: url,
-        },
-        key,
-        close: "outside",
-        replace: true,
-        reset: true,
-        template: `
-                    <div id="hyperlink">
-                        <p>
-                            <input id="hyperlinkTitle" type="text" style="width:450px" disabled="true" title="${t("Title")}" placeholder="${t("Get the title")}"/>
-                            <button id="hyperlinkButton" title="${t("Submit")}">&#xed00;</button>
-                        </p>
-                    </div>
-                    <style>
-                    body>div {
-                        &#root>div {
-                            &.light-theme>main>div span#dot-${uuid} {
-                                outline: 2px solid var(--ls-link-ref-text-color);
-                            }
-                            &.dark-theme>main>div span#dot-${uuid} {
-                                outline: 2px solid aliceblue;
-                            }
-                        }
-                        &[data-ref="confirmation-done-task"] div#hyperlink button#hyperlinkButton {
-                            display: none;
-                        }
-                    }
-                    </style>
-                    `,
-        style: {
-            width: "unset",
-            maxWidth: "550px",
-            left,
-            top,
-            paddingLeft: "0.4em",
-            backgroundColor: 'var(--ls-primary-background-color)',
-            color: 'var(--ls-primary-text-color)',
-            boxShadow: '1px 2px 5px var(--ls-secondary-background-color)',
-        },
+    logseq.beforeunload(async () => {
+        resetAll()
     })
+}
 
+const mutationCallback = () => {
+    observer.disconnect()
+    processPageReferences()
+    setTimeout(() => observeMainContent(), 500)
+}
+
+const observer = new MutationObserver(mutationCallback)
+
+let isProcessingQuery: boolean = false
+const processPageReferences = () => {
+    if (isProcessingQuery) return
+    isProcessingQuery = true
     setTimeout(() => {
-
-        //タイトル取得ボタン
-        const divElement = parent.document.getElementById("hyperlink") as HTMLDivElement
-        if (divElement)
-            divElement.addEventListener("mouseover", async () => {
-                if (processingForButton)
-                    return
-                processingForButton = true
-                setTimeout(() =>
-                    processingForButton = false
-                    , 100)
-
-                const title = await getTitleFromURL(url)
-
-                const elementTitle = parent.document.getElementById("hyperlinkTitle") as HTMLInputElement
-                if (title
-                    && elementTitle)
-                    elementTitle.value = includeTitle(title)
-                elementTitle.disabled = false
-
-                //実行ボタンを表示
-                const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement | null
-                if (button)
-                    button.style.display = "inline"
-
-            }, { once: true })
-
-        //実行ボタン
-        const button = parent.document.getElementById("hyperlinkButton") as HTMLButtonElement
-        if (button)
-            button.addEventListener("click", async () => {
-                if (processingForButton)
-                    return
-                processingForButton = true
-
-                const inputTitle = (parent.document.getElementById("hyperlinkTitle") as HTMLInputElement).value
-                if (!inputTitle)
-                    return
-
-                const block = await logseq.Editor.getBlock(uuid, { includeChildren: false }) as { uuid: BlockEntity["uuid"] } | null
-                if (block) {
-                    const updatedTitle = convertUrlToMarkdownLink(inputTitle, url, text, formatSettings.applyFormat)
-                    if (updatedTitle)
-                        logseq.Editor.updateBlock(uuid, updatedTitle)
-                } else
-                    logseq.UI.showMsg(t("Error: Block not found"), "warning")
-
-                //実行されたらポップアップを削除
-                const element = parent.document.getElementById(logseq.baseInfo.id + `--${key}`) as HTMLDivElement | null
-                if (element)
-                    element.remove()
-                currentSetURL = ''
-
-                processingForButton = false
-            })
+        setTimeout(() => isProcessingQuery = false, 200)
+        parent.document.body.querySelectorAll(
+            ':is(#main-content-container,#right-sidebar) a.external-link:not([data-button-added="true"])[target="_blank"]:is([href^="http://"],[href^="https://"])'
+        ).forEach(
+            (element) => handleFoundLink(element as HTMLAnchorElement)
+        )
     }, 100)
 }
 
-logseq.ready(main).catch(console.error)
+const handleFoundLink = (element: HTMLAnchorElement) => {
+    if (element.dataset.buttonAdded === "true") return
+
+    const url = element.href
+    if (element.textContent === url) {
+        const button = createConvertButton(url)
+        element.after(button)
+    }
+    element.dataset.buttonAdded = "true"
+}
+
+const createConvertButton = (url: string): HTMLButtonElement => {
+    const button = document.createElement('button')
+    button.textContent = logseq.settings!.icon as string || "🛜"
+    button.classList.add("external-link-submit-button")
+    button.title = t("Get the title from the site and convert the URL string in the block to markdown")
+    button.onclick = () => handleButtonClick(button, url)
+    return button
+}
+
+const msgNotFoundBlock = "ERROR: The block could not be found.\nURL: "
+
+const handleButtonClick = async (buttonElement: HTMLButtonElement, url: string) => {
+    const blockElement = parent.document.body.querySelector(`:is(#main-content-container,#right-sidebar) div.block-content[data-type="default"][blockid][id]:has(a.external-link[href="${url}"])`) as HTMLElement | null
+    if (blockElement) {
+        const blockUuid = blockElement.id.replace("block-content-", "")
+        if (blockUuid) {
+            if (await convertUrlInBlock(url, blockUuid)) {
+                buttonElement.style.display = "none"
+            }
+            return
+        }
+    }
+    alert(msgNotFoundBlock + url)
+}
+
+const convertUrlInBlock = async (targetUrl: string, blockUuid: BlockEntity["uuid"]): Promise<boolean> => {
+    const blockEntity = await logseq.Editor.getBlock(blockUuid, { includeChildren: false }) as { content: BlockEntity["content"] }
+    if (blockEntity) {
+        let [title, url] = await getTitleFromURL(targetUrl)
+        if (title === "") {
+            const msg = `${t("Title could not be retrieved from the site.")}\n${t("If the site is strict about fetch, nothing can be retrieved.")}`
+            logseq.UI.showMsg(msg + `\n\nURL: ${url}`, "info", { timeout: 3000 })
+            if (logseq.settings!.booleanInsertIfNotFoundTitle) {
+                title = t("Title")
+            } else {
+                return false
+            }
+        }
+        const replacedTitle = sanitizeTitle(title)
+        const blockContent = blockEntity.content
+            .replace(`[${targetUrl}](${targetUrl})`, `${url.endsWith(".pdf") ? "!" : ""}[${replacedTitle}](${url})`)
+            .replace(targetUrl, `${url.endsWith(".pdf") ? "!" : ""}[${replacedTitle}](${url})`)
+        await logseq.Editor.updateBlock(blockUuid, blockContent)
+        return true
+    } else {
+        alert(msgNotFoundBlock + targetUrl)
+        return false
+    }
+}
+
+const sanitizeTitle = (title: string): string => {
+    return title
+        .replace("[", "")
+        .replace("]", "")
+        .replace(/[\n()\[\]]|{{|}}|#\+/g, (match) => {
+            switch (match) {
+                case "{{":
+                    return "{"
+                case "}}":
+                    return "}"
+                case "#+":
+                    return " "
+                default:
+                    return ""
+            }
+        })
+}
+
+const observeMainContent = () => {
+    const mainContentContainer = parent.document.getElementById("main-content-container") as HTMLDivElement
+    const rightSidebar = parent.document.getElementById("right-sidebar") as HTMLDivElement
+
+    if (mainContentContainer) {
+        observer.observe(mainContentContainer, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class']
+        })
+    }
+
+    if (rightSidebar) {
+        observer.observe(rightSidebar, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class']
+        })
+    }
+}
+
+const resetAll = () => {
+    parent.document.body.querySelectorAll(
+        ':is(#main-content-container,#right-sidebar) button.external-link-submit-button'
+    ).forEach((element) =>
+        (element as HTMLElement).style.display = "none"
+    )
+}
+
+logseq.ready(initializePlugin).catch(console.error)

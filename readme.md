@@ -3,8 +3,8 @@
 - This plugin converts URL to markdown; the Logseq standard leaves them as URL.
   > It is the successor of [Automatic URL title](https://github.com/0x7b1/logseq-plugin-automatic-url-title) plugin.
 
-> [!WARNING]
-This plugin does not work with Logseq db version now.
+> [!NOTE]
+> This plugin works in Logseq db version.
 
 <div align="right">
 
@@ -16,11 +16,9 @@ This plugin does not work with Logseq db version now.
 
 ## Overview
 
-- Paste the URL in any block and a dialogue will appear. Edit the title and press the Decide button to convert it to a markdown. If the dialogue is closed, no conversion takes place. This avoids unnecessary conversions.
-  > Fetching (retrieving the title from the URL destination) is performed when the cursor is placed over the input field.
+- Press the Convert button next to the URL and the URL string will be converted to markdown.
 
-
-   ![image](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/assets/111847207/e4ca591a-b6bb-4077-bd5d-4e42b184cb53)
+  ![17](https://github.com/user-attachments/assets/10ccacc6-d217-45e1-aa58-d64cf3bc3b14)
 
 - If it is an online PDF, download it from its URL and add it to the asset. This is particularly useful for online PDF files that are updated at the same URL.
 
@@ -33,17 +31,16 @@ This plugin does not work with Logseq db version now.
 
 ### Usage
 
-  - That dialog will appear when paste the URL.
-     > *If the dialog does not appear*, call from "Create Hyperlink" item from the bullet context menu
+- Paste the URL into the block and press Enter or Esc to exit edit mode.
+- Only in non-editing mode, a conversion button appears next to the external link (URL string).
+- Pressing the convert button performs the fetch and if the title can be retrieved from the site, the URL string is converted to markdown.
+  > If you want to undo it, press `Ctrl + Z` as usual.
 
 ### Plugin Settings
 
-- Only when called from the bulleted context menu, not when a URL is pasted. Enabling this will do nothing when pasted.: boolean 🆕
-  - `false` default
-  - `true`
-- Download the online PDF file and add to assets: boolean 🆕
-  - `true` default
-  - `false`
+- Toggle: Convert to markdown even if the title could not be retrieved from the URL.
+- Change icon (or as text)
+- Download the online PDF file and add to assets
 
 ---
 
