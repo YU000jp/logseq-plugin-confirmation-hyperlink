@@ -1,11 +1,14 @@
 
-var PLUGIN_NAME = 'logseq-plugin-confirmation-hyperlink'
+var PLUGIN_NAME = 'logseq-plugin-confirmation-hyperlink';
 
 module.exports = {
     branches: ['main'],
     plugins: [
         ['@semantic-release/commit-analyzer', {
             preset: 'conventionalcommits',
+            releaseRules: [
+                { breaking: true, release: 'major' },
+            ]
         }],
         '@semantic-release/release-notes-generator',
         '@semantic-release/changelog',
@@ -21,4 +24,4 @@ module.exports = {
             failTitle: false,
         }],
     ],
-}
+};
