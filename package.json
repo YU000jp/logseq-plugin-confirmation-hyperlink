@@ -35,7 +35,7 @@
         "rollup-plugin-string": "^3.0.0",
         "semantic-release": "^24.2.3",
         "typescript": "^5.8.2",
-        "vite": "^6.2.2",
+        "vite": "^5.4.17",
         "vite-plugin-logseq": "^1.1.2"
     },
     "config": {

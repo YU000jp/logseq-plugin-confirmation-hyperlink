@@ -1,3 +1,5 @@
+# [2.0.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.5...v2.0.0) (2025-03-23)
+
 ## [1.7.5](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.4...v1.7.5) (2024-10-19)
 
 
