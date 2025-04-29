@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v2.0.0...v2.0.1) (2025-04-29)
+
+
+### Performance Improvements
+
+* **ref:** Improved processing performance through the use of queries ([d1f78b7](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/d1f78b7452dff9a152c24533b689a95b094a6222))
+
 # [2.0.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.5...v2.0.0) (2025-03-23)
 
 ## [1.7.5](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v1.7.4...v1.7.5) (2024-10-19)
