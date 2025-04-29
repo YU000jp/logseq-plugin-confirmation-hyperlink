@@ -22,6 +22,7 @@ import tr from "./translations/tr.json"
 import uk from "./translations/uk.json"
 import zhCN from "./translations/zh-CN.json"
 import zhHant from "./translations/zh-Hant.json"
+import { getContentFromUuid } from './query/advancedQuery'
 
 const initializePlugin = async () => {
     await setupTranslations()
@@ -109,9 +110,8 @@ const handleButtonClick = async (buttonElement: HTMLButtonElement, url: string) 
     if (blockElement) {
         const blockUuid = blockElement.id.replace("block-content-", "")
         if (blockUuid) {
-            if (await convertUrlInBlock(url, blockUuid)) {
+            if (await convertUrlInBlock(url, blockUuid))
                 buttonElement.style.display = "none"
-            }
             return
         }
     }
@@ -119,23 +119,22 @@ const handleButtonClick = async (buttonElement: HTMLButtonElement, url: string) 
 }
 
 const convertUrlInBlock = async (targetUrl: string, blockUuid: BlockEntity["uuid"]): Promise<boolean> => {
-    const blockEntity = await logseq.Editor.getBlock(blockUuid, { includeChildren: false }) as { content: BlockEntity["content"] }
-    if (blockEntity) {
+    const content = await getContentFromUuid(blockUuid) as BlockEntity["content"] | null
+    if (content) {
         let [title, url] = await getTitleFromURL(targetUrl)
         if (title === "") {
-            const msg = `${t("Title could not be retrieved from the site.")}\n${t("If the site is strict about fetch, nothing can be retrieved.")}`
-            logseq.UI.showMsg(msg + `\n\nURL: ${url}`, "info", { timeout: 3000 })
-            if (logseq.settings!.booleanInsertIfNotFoundTitle) {
+            logseq.UI.showMsg(`${t("Title could not be retrieved from the site.")}\n${t("If the site is strict about fetch, nothing can be retrieved.")}` + `\n\nURL: ${url}`, "info", { timeout: 3000 })
+            if (logseq.settings!.booleanInsertIfNotFoundTitle)
                 title = t("Title")
-            } else {
+            else
                 return false
-            }
         }
         const replacedTitle = sanitizeTitle(title)
-        const blockContent = blockEntity.content
+        const blockContent = content
             .replace(`[${targetUrl}](${targetUrl})`, `${url.endsWith(".pdf") ? "!" : ""}[${replacedTitle}](${url})`)
             .replace(targetUrl, `${url.endsWith(".pdf") ? "!" : ""}[${replacedTitle}](${url})`)
-        await logseq.Editor.updateBlock(blockUuid, blockContent)
+        if (content !== blockContent)
+            await logseq.Editor.updateBlock(blockUuid, blockContent)
         return true
     } else {
         alert(msgNotFoundBlock + targetUrl)
