@@ -1,5 +1,6 @@
 import { BlockEntity } from "@logseq/libs/dist/LSPlugin.user"
 
+
 // クエリを実行
 export const advancedQuery = async <T>(query: string, ...input: Array<string>): Promise<T | null> => {
   try {
@@ -11,7 +12,7 @@ export const advancedQuery = async <T>(query: string, ...input: Array<string>): 
   }
 }
 
-// 現在のページの名前を取得
+
 export const getContentFromUuid = async (uuid: BlockEntity["uuid"]): Promise<BlockEntity["content"] | null> => {
   const query = `
     [:find (pull ?p [:block/content])
