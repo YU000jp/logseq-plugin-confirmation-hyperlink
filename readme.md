@@ -22,6 +22,10 @@
 
 - If it is an online PDF, download it from its URL and add it to the asset. This is particularly useful for online PDF files that are updated at the same URL.
 
+### Differences with the ‘[URL Title Tagger](https://github.com/imjn/logseq-url-title-tagger)’ plugin
+
+- The ‘URL HyperLink’ plugin requires users to manually click a button. As this is not done automatically, unnecessary chain reactions can be prevented. https://github.com/imjn/logseq-url-title-tagger/issues/7
+
 ---
 
 ## Getting Started
