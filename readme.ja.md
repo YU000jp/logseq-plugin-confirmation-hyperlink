@@ -23,6 +23,10 @@
 
 - (オプション) オンラインPDFの場合は、そのURLからダウンロードしてアセットに追加します。これは、同じURLで更新されるオンラインPDFファイルの場合に特に便利です。
 
+### プラグイン「[URL Title Tagger](https://github.com/imjn/logseq-url-title-tagger)」との違い
+
+- 「URL HyperLink」プラグインは、ユーザーが手動でボタンをクリックする必要があります。自動で変換が行われないため、不要な連鎖を防げます。https://github.com/imjn/logseq-url-title-tagger/issues/7
+
 ---
 
 ## 始め方
