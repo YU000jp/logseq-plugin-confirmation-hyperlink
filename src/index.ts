@@ -22,9 +22,24 @@ import tr from "./translations/tr.json"
 import uk from "./translations/uk.json"
 import zhCN from "./translations/zh-CN.json"
 import zhHant from "./translations/zh-Hant.json"
-import { getContentFromUuid } from './query/advancedQuery'
+import { getContentFromUuid, getContentFromUuidForDb } from './query/advancedQuery'
+import { logseqModelCheck } from './logseqModelCheck'
 
-const initializePlugin = async () => {
+// 変数 (同じモジュール内で使用するため、exportしない)
+let logseqVersion: string = "" //バージョンチェック用
+let logseqMdModel: boolean = false //モデルチェック用
+// 外部から参照するためにexportする
+export const replaceLogseqVersion = (version: string) => logseqVersion = version
+export const replaceLogseqMdModel = (mdModel: boolean) => logseqMdModel = mdModel
+
+const main = async () => {
+    // Logseqモデルのチェックを実行
+    const [logseqMdModel] = await logseqModelCheck()
+    // 初期ロード
+    await initializePlugin(logseqMdModel)
+}
+
+const initializePlugin = async (logseqMdModel: boolean) => {
     await setupTranslations()
     setupUserSettings()
     setupEventListeners()
@@ -119,7 +134,9 @@ const handleButtonClick = async (buttonElement: HTMLButtonElement, url: string) 
 }
 
 const convertUrlInBlock = async (targetUrl: string, blockUuid: BlockEntity["uuid"]): Promise<boolean> => {
-    const content = await getContentFromUuid(blockUuid) as BlockEntity["content"] | null
+    const content = logseqMdModel === true ?
+        await getContentFromUuid(blockUuid) as BlockEntity["content"] | null
+        : await getContentFromUuidForDb(blockUuid) as BlockEntity["content"] | null
     if (content) {
         let [title, url] = await getTitleFromURL(targetUrl)
         if (title === "") {
@@ -189,4 +206,4 @@ const resetAll = () => {
     )
 }
 
-logseq.ready(initializePlugin).catch(console.error)
+logseq.ready(main).catch(console.error)

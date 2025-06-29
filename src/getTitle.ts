@@ -3,83 +3,79 @@ import { convertOnlinePDF } from "./convertPDF"
 
 export const getTitleFromURL = async (url: string): Promise<Array<string>> => {
     try {
-        if (url.startsWith("https://github.com/")) {
-            const title = extractTitleFromGitHubURL(url)
-            console.log("GitHub URL detected, title: ", title)
-            return [title, url]
-        } else
-            // PDFの場合はダウンロードする
-            if (url.endsWith(".pdf")) {
-                console.log("PDF file detected")
-                return [t("title"), logseq.settings!.onlinePDF as boolean === true ? await convertOnlinePDF(url) as string : url] // オンラインからPDFをダウンロードするかどうか
-            }
+        // PDFの場合はダウンロードする
+        if (url.endsWith(".pdf")) {
+            console.log("PDF file detected")
+            return [t("title"), logseq.settings!.onlinePDF as boolean === true ? await convertOnlinePDF(url) as string : url] // オンラインからPDFをダウンロードするかどうか
+        }
         console.log("fetch: ", url)
         const response = await fetch(url)
-        if (!response.ok) return ["", url]
-
-        const contentType = response.headers.get("content-type")
-        if (!contentType || !contentType.includes("text/html")) {
-            console.log("Not an HTML response")
+        // Skip Forbidden, Unauthorized
+        if (response.status === 403 || response.status === 401) {
             return ["", url]
         }
+        if (response == null) return ["", url]
 
-        const { charset, title } = extractCharsetAndTitleFromHTML(await response.arrayBuffer())
-        if (title) {
-            console.log("Get title: ", title)
-            return [title, url]
+        const contentType = response.headers.get('Content-Type')
+        let charset = contentType !== null && contentType.toLowerCase().includes('charset=')
+            ? contentType.split('charset=')[1].split(';')[0].trim()
+            : 'utf-8'
+
+        const buffer = await response.arrayBuffer()
+        let html: string
+        try {
+            html = new TextDecoder(charset).decode(new Uint8Array(buffer))
+        } catch (e) {
+            // charsetが不正な場合はUTF-8で再試行
+            html = new TextDecoder("utf-8").decode(new Uint8Array(buffer))
+            charset = "utf-8"
+        }
+
+        let parser = new DOMParser()
+        let doc = parser.parseFromString(html, 'text/html')
+
+        // metaタグでcharsetが指定されていれば再デコード
+        if (charset === "utf-8") {
+            const metaCharset = doc.querySelector('meta[charset]')?.getAttribute('charset')
+                || doc.querySelector('meta[http-equiv="Content-Type"]')?.getAttribute('content')?.split('charset=')[1]?.split(';')[0]?.trim()
+            if (metaCharset && metaCharset.toLowerCase() !== "utf-8") {
+                try {
+                    html = new TextDecoder(metaCharset).decode(new Uint8Array(buffer))
+                    doc = parser.parseFromString(html, 'text/html')
+                } catch (e) {
+                    // サポート外の場合は無視
+                }
+            }
+        }
+
+        // タイトル取得の優先順位
+        let title = doc.querySelector('title')?.innerText
+        if (!title || title.trim() === "") {
+            // og:title
+            const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content')
+            if (ogTitle && ogTitle.trim() !== "") {
+                title = ogTitle
+            } else {
+                // twitter:title
+                const twitterTitle = doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content')
+                if (twitterTitle && twitterTitle.trim() !== "") {
+                    title = twitterTitle
+                } else {
+                    // h1
+                    const h1 = doc.querySelector('h1')?.innerText
+                    if (h1 && h1.trim() !== "") {
+                        title = h1
+                    } else {
+                        title = ""
+                    }
+                }
+            }
+        }
+        if (title && title.trim() !== "") {
+            return [title.trim(), url]
         }
     } catch (error) {
         console.error(error)
     }
     return ["", url]
-}
-
-const extractTitleFromGitHubURL = (url: string): string => {
-    return url.substring("https://github.com/".length)
-}
-
-interface CharsetAndTitle {
-    charset: string
-    title: string | null
-}
-
-const decodeHtmlEntities = (text: string): string => {
-    const tempElement = document.createElement('textarea')
-    tempElement.innerHTML = text
-    return tempElement.value
-}
-
-const extractCharsetAndTitleFromHTML = (buffer: ArrayBuffer): CharsetAndTitle => {
-    const initialChunk = new Uint8Array(buffer, 0, Math.min(buffer.byteLength, 2048))
-    let htmlString = new TextDecoder('utf-8').decode(initialChunk)
-
-    let charsetMatch = htmlString.match(/<meta\s+charset=["']?([^"']+)["']?/i)
-    let charset = charsetMatch ? charsetMatch[1] : null
-
-    if (!charset) {
-        const contentTypeMatch = htmlString.match(/<meta\s+http-equiv=["']content-type["'][^>]*content=["']?[^;]+;\s*charset=([^"']+)["']?/i)
-        charset = contentTypeMatch ? contentTypeMatch[1] : 'UTF-8'
-    }
-
-    let title: string | null = null
-    if (charset.toLowerCase() === 'utf-8') {
-        const titleMatch = htmlString.match(/<title>(.*?)<\/title>/i)
-        if (titleMatch)
-            title = decodeHtmlEntities(titleMatch[1].trim())
-    } else {
-        const titleTagPosition = htmlString.indexOf('<title>')
-        if (titleTagPosition !== -1) {
-            const endPosition = Math.min(buffer.byteLength, titleTagPosition + 2048)
-            const titleChunk = new Uint8Array(buffer.slice(titleTagPosition, endPosition))
-            htmlString = new TextDecoder(charset).decode(titleChunk)
-            const titleMatch = htmlString.match(/<title>(.*?)<\/title>/i)
-            if (titleMatch)
-                title = decodeHtmlEntities(titleMatch[1].trim())
-        }
-    }
-
-    return {
-        charset: charset ?? 'UTF-8',
-        title
-    }
 }
