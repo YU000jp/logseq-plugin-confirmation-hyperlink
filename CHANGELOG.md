@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v2.0.1...v2.0.2) (2025-06-29)
+
+
+### Bug Fixes
+
+* **bug:** "The block could not be found" in DB version [#46](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/issues/46) ([13ab068](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/13ab0682b6e45981886ca1c73da7db4af54660d6))
+
 ## [2.0.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v2.0.0...v2.0.1) (2025-04-29)
 
 
