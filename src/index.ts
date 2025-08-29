@@ -74,6 +74,40 @@ const setupEventListeners = () => {
     logseq.beforeunload(async () => {
         resetAll()
     })
+
+    // Register the keyboard shortcut command
+    logseq.Editor.registerSlashCommand(
+        'Convert URL to hyperlink',
+        async () => {
+            await handleKeyboardShortcut()
+        }
+    )
+
+    // Register keyboard shortcut via command palette
+    logseq.App.registerCommandPalette(
+        {
+            key: 'convert-url-hyperlink',
+            label: 'Convert URL to hyperlink'
+        },
+        async () => {
+            await handleKeyboardShortcut()
+        }
+    )
+
+    // Try to register the keyboard shortcut
+    try {
+        const shortcutKey = (logseq.settings?.keyboardShortcut as string) || 'mod+shift+l'
+        logseq.App.registerCommandShortcut(
+            {
+                binding: shortcutKey
+            } as any,
+            async () => {
+                await handleKeyboardShortcut()
+            }
+        )
+    } catch (error) {
+        console.warn("Could not register keyboard shortcut:", error)
+    }
 }
 
 const mutationCallback = () => {
@@ -131,6 +165,78 @@ const handleButtonClick = async (buttonElement: HTMLButtonElement, url: string) 
         }
     }
     alert(msgNotFoundBlock + url)
+}
+
+const handleKeyboardShortcut = async () => {
+    try {
+        const currentBlock = await logseq.Editor.getCurrentBlock()
+        if (!currentBlock) {
+            logseq.UI.showMsg(t("No block selected"), "warning", { timeout: 2000 })
+            return
+        }
+
+        // Try to find URL in the current block content
+        const urlInBlock = findUrlInBlockContent(currentBlock.content)
+        if (!urlInBlock) {
+            logseq.UI.showMsg(t("No URL found at cursor position"), "warning", { timeout: 2000 })
+            return
+        }
+
+        // Convert the URL using existing logic
+        if (await convertUrlInBlock(urlInBlock, currentBlock.uuid)) {
+            logseq.UI.showMsg(t("URL converted to hyperlink"), "success", { timeout: 2000 })
+        }
+    } catch (error) {
+        console.error("Error in keyboard shortcut handler:", error)
+        logseq.UI.showMsg(t("Error converting URL"), "error", { timeout: 2000 })
+    }
+}
+
+const findUrlInBlockContent = (content: string): string | null => {
+    // URL regex pattern - matches http(s) URLs that are not already in markdown format
+    const urlRegex = /(?<!\[.*?)https?:\/\/[^\s\[\]]+(?!\]\([^\)]*\))/g
+    const match = content.match(urlRegex)
+    
+    if (match && match.length > 0) {
+        // Return the first URL found that hasn't been converted yet
+        return match[0]
+    }
+    
+    return null
+}
+
+const findUrlAtCursor = (): string | null => {
+    try {
+        const selection = parent.getSelection()
+        if (!selection || selection.rangeCount === 0) return null
+
+        const range = selection.getRangeAt(0)
+        const textNode = range.startContainer
+
+        if (textNode.nodeType !== Node.TEXT_NODE) return null
+
+        const text = textNode.textContent || ""
+        const cursorPosition = range.startOffset
+
+        // URL regex pattern - matches http(s) URLs
+        const urlRegex = /https?:\/\/[^\s]+/g
+        let match
+
+        while ((match = urlRegex.exec(text)) !== null) {
+            const urlStart = match.index
+            const urlEnd = match.index + match[0].length
+
+            // Check if cursor is within this URL
+            if (cursorPosition >= urlStart && cursorPosition <= urlEnd) {
+                return match[0]
+            }
+        }
+
+        return null
+    } catch (error) {
+        console.error("Error finding URL at cursor:", error)
+        return null
+    }
 }
 
 const convertUrlInBlock = async (targetUrl: string, blockUuid: BlockEntity["uuid"]): Promise<boolean> => {
