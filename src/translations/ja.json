@@ -17,5 +17,9 @@
   "Paste the URL into the block and press Enter or Esc to exit edit mode.": "URLをブロックに貼り付け、EnterまたはEscを押して編集モードを終了します。",
   "Only in non-editing mode, a conversion button appears next to the external link (URL string).": "編集モード以外では、外部リンク（URL文字列）の横に変換ボタンが表示されます。",
   "Pressing the convert button performs the fetch and if the title can be retrieved from the site, the URL string is converted to markdown.": "変換ボタンを押すと、fetchが行われ、サイトからタイトルを取得できる場合は、URL文字列がマークダウンに変換されます。",
-  "If you want to undo it, press Ctrl + Z as usual.": "もし、元に戻す場合は通常どおり、Ctrl + Zを押してください。"
+  "If you want to undo it, press Ctrl + Z as usual.": "もし、元に戻す場合は通常どおり、Ctrl + Zを押してください。",
+  "No block selected": "ブロックが選択されていません",
+  "No URL found at cursor position": "カーソル位置にURLが見つかりません",
+  "URL converted to hyperlink": "URLがハイパーリンクに変換されました",
+  "Error converting URL": "URL変換エラー"
 }

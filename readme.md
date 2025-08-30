@@ -35,9 +35,17 @@
 
 ### Usage
 
-- Paste the URL into the block and press Enter or Esc to exit edit mode.
-- Only in non-editing mode, a conversion button appears next to the external link (URL string).
-- Pressing the convert button performs the fetch and if the title can be retrieved from the site, the URL string is converted to markdown.
+- **Method 1: Click the convert button**
+  - Paste the URL into the block and press Enter or Esc to exit edit mode.
+  - Only in non-editing mode, a conversion button appears next to the external link (URL string).
+  - Pressing the convert button performs the fetch and if the title can be retrieved from the site, the URL string is converted to markdown.
+
+- **Method 2: Use keyboard shortcut (NEW)**
+  - Place the cursor within a block containing a URL
+  - Press `Ctrl+Shift+L` (or `Cmd+Shift+L` on Mac) to convert the URL to a hyperlink
+  - Alternatively, use the slash command `/Convert URL to hyperlink` or find it in the command palette
+  - **Customize shortcut**: You can change the keyboard shortcut in Logseq's Settings > Keymap > Plugins section
+
   > If you want to undo it, press `Ctrl + Z` as usual.
 
 ### Plugin Settings

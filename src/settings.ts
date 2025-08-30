@@ -40,6 +40,7 @@ export const settingsTemplate = (): SettingSchemaDesc[] => [
                           title: t("Download the online PDF file and add to assets"),
                           description: t("Enable"),
                           default: true,
-             }
+             },
+
 
 ]
