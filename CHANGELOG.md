@@ -1,3 +1,10 @@
+# [2.1.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v2.0.2...v2.1.0) (2025-08-30)
+
+
+### Features
+
+* **Add:** Add keyboard shortcut support for creating hyperlinks (Merge pull request [#48](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/issues/48) from YU000jp/copilot/fix-47) ([bb7b228](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/bb7b22867b453343b0f50005a39d1e24b87fb33d))
+
 ## [2.0.2](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v2.0.1...v2.0.2) (2025-06-29)
 
 
