@@ -41,12 +41,6 @@ export const settingsTemplate = (): SettingSchemaDesc[] => [
                           description: t("Enable"),
                           default: true,
              },
-             {
-                          key: "keyboardShortcut",
-                          title: t("Keyboard shortcut to convert URL at cursor"),
-                          description: t("Press this shortcut when cursor is positioned within a URL to convert it to hyperlink"),
-                          default: "mod+shift+l",
-                          type: "string",
-             }
+
 
 ]

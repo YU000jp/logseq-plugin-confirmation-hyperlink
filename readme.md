@@ -44,15 +44,13 @@
   - Place the cursor within a block containing a URL
   - Press `Ctrl+Shift+L` (or `Cmd+Shift+L` on Mac) to convert the URL to a hyperlink
   - Alternatively, use the slash command `/Convert URL to hyperlink` or find it in the command palette
+  - **Customize shortcut**: You can change the keyboard shortcut in Logseq's Settings > Keymap > Plugins section
 
   > If you want to undo it, press `Ctrl + Z` as usual.
 
 ### Plugin Settings
 
 - Toggle: Convert to markdown even if the title could not be retrieved from the URL.
-- Change icon (or as text)
-- Download the online PDF file and add to assets
-- **Keyboard shortcut to convert URL at cursor** - Customize the keyboard shortcut (default: `mod+shift+l`)
 - Change icon (or as text)
 - Download the online PDF file and add to assets
 

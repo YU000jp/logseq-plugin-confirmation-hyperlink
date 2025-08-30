@@ -94,20 +94,15 @@ const setupEventListeners = () => {
         }
     )
 
-    // Try to register the keyboard shortcut
-    try {
-        const shortcutKey = (logseq.settings?.keyboardShortcut as string) || 'mod+shift+l'
-        logseq.App.registerCommandShortcut(
-            {
-                binding: shortcutKey
-            } as any,
-            async () => {
-                await handleKeyboardShortcut()
-            }
-        )
-    } catch (error) {
-        console.warn("Could not register keyboard shortcut:", error)
-    }
+    // Register keyboard shortcut with fixed binding
+    logseq.App.registerCommandShortcut(
+        {
+            binding: 'mod+shift+l'
+        } as any,
+        async () => {
+            await handleKeyboardShortcut()
+        }
+    )
 }
 
 const mutationCallback = () => {
