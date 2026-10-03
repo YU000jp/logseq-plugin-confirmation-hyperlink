@@ -1,3 +1,10 @@
+## [2.1.1](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v2.1.0...v2.1.1) (2026-10-03)
+
+
+### Bug Fixes
+
+* グラフ種別の検出を公式APIに置き換え、バージョン由来判定の誤検出を修正 ([b1f1cd0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/commit/b1f1cd033872fd71d4ad36948f49fda39858a7e4))
+
 # [2.1.0](https://github.com/YU000jp/logseq-plugin-confirmation-hyperlink/compare/v2.0.2...v2.1.0) (2025-08-30)
 
 
