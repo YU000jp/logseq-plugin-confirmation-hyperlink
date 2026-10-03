@@ -27,19 +27,19 @@ import { logseqModelCheck } from './logseqModelCheck'
 
 // 変数 (同じモジュール内で使用するため、exportしない)
 let logseqVersion: string = "" //バージョンチェック用
-let logseqMdModel: boolean = false //モデルチェック用
+let logseqMdModel: boolean = false //ファイルグラフ判定用(!isDbGraph)
 // 外部から参照するためにexportする
 export const replaceLogseqVersion = (version: string) => logseqVersion = version
 export const replaceLogseqMdModel = (mdModel: boolean) => logseqMdModel = mdModel
 
 const main = async () => {
-    // Logseqモデルのチェックを実行
-    const [logseqMdModel] = await logseqModelCheck()
+    // アプリ情報とグラフ種別を検出してフラグに反映
+    await logseqModelCheck()
     // 初期ロード
-    await initializePlugin(logseqMdModel)
+    await initializePlugin()
 }
 
-const initializePlugin = async (logseqMdModel: boolean) => {
+const initializePlugin = async () => {
     await setupTranslations()
     setupUserSettings()
     setupEventListeners()
@@ -67,6 +67,11 @@ const setupUserSettings = () => {
 }
 
 const setupEventListeners = () => {
+    // グラフ切替時にグラフ種別を再検出してフラグを更新
+    logseq.App.onCurrentGraphChanged(async () => {
+        await logseqModelCheck()
+    })
+
     logseq.App.onSidebarVisibleChanged(async ({ visible }) => {
         if (visible) mutationCallback()
     })
